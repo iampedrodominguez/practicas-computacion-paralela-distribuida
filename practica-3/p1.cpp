@@ -1,6 +1,8 @@
 #include <mpi.h>
 #include <stdio.h>
 #include <iostream>
+#include <fstream>
+
 using namespace std;
 
 // Se intercambia las funciones Send y Recv, ya que si está al revés entonces los procesos se quedan esperando a recibir algo.
@@ -38,8 +40,15 @@ int main(int argc, char **argv)
 
   t1 = MPI_Wtime();
 
-  if (rank == 0)
-    cout << "Tiempo (s): " << (t1 - t0) * 1000 << endl;
+  if (rank == 0) {
+    
+    fstream file("p1.csv", ios::in | ios::out | ios::app);
+    string line;
 
+    for (int i = 1; i < size; i++)
+      getline(file, line);
+    
+    file << ", " << (t1 - t0) * 1000 << size;
+  }
   MPI_Finalize();
 }

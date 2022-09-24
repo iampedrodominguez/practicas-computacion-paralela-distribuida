@@ -1,6 +1,7 @@
 #include <mpi.h>
 #include <stdio.h>
 #include <iostream>
+#include <fstream>
 using namespace std;
 
 // Para el cálculo del tiempo de latencia, enviamos el buffer con un tamaño igual a cero, lo cual es permitido por la función
@@ -36,7 +37,16 @@ int main(int argc, char **argv) {
 
   t1 = MPI_Wtime();
   
-  if (rank==0) cout<<"Tiempo (s): "<<(t1-t0)*1000<<endl;
+  if (rank == 0) {
+    
+    fstream file("p2.csv", ios::in | ios::out | ios::app);
+    string line;
+
+    for (int i = 1; i < size; i++)
+      getline(file, line);
+    
+    file << ", " << (t1 - t0) * 1000 << size;
+  }
 
   MPI_Finalize();
 }

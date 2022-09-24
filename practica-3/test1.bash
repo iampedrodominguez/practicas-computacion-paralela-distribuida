@@ -1,6 +1,9 @@
 mpic++ p1.cpp -o p1
 
-for i in {1..2}
+for p in {5..16}
 do
-   mpirun -np 2 ./p1
+   for i in {1..10}
+   do
+      mpirun -np $p ./p1
+   done
 done

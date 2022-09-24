@@ -1,19 +1,28 @@
 #!/bin/bash
 # bash data_generator.bash
 make clean
-rm -rf Data
-rm graph.png
-mkdir -p Data
 make e3_data
+rm -rf Data
+mkdir -p Data
 
-for p in {2..10}
+for ee in {7..10}
 do
-   filename="Data/data$p.csv"
-   for i in {1..3}
+   n=$[2**$ee]
+   for e in {0..6}
    do
-      make run_e3_data P=$p FILE_NAME=$filename
+      p=$[2**$e]
+      filename="Data/data$p.N$n.csv"
+      for i in {1..10}
+      do
+         make run_e3_data P=$p FILE_NAME=$filename N=$n
+         status=$?
+         if [ $status -ne 0 ]; then
+            make clean
+            exit $status
+         fi
+      done
    done
 done
 
 make clean
-python3 data_processor.py
+python data_processor.py

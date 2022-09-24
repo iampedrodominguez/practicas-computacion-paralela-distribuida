@@ -22,28 +22,27 @@ int main(int argc, char **argv)
 #ifdef _TEST
   const int N = 4;
 #else
-  const int N = 840;
+  const int N = 512;
 #endif
-  const int N_matrix_local = N * N / P;
-  int A[N][N], At[N_matrix_local][N], V[N], Vt[N], X[N], Xt[N];
 
-  if (rank == 0)
-  {
+  sm = N / P;
+  int A[N][N], At[sm][N], V[N], X[N], Xt[sm];
+
+  if (rank == 0) {
     // NOTE: Read Matrix for master
     int val = 0;
-    for (int i = 0; i < N; i++)
-    {
+    for (int i = 0; i < N; i++) {
       for (int j = 0; j < N; j++)
-        A[i][j] = val++;
-      V[i] = i * i;
-    }
+        A[i][j] = i+j;
+      V[i] = i;
+  }
+
 #ifdef _TEST
     printf("Print Matrix and Vector -------------------------\n");
-    printf("Matrix\n");
-    for (int i = 0; i < N; i++)
-    {
+    printf("Matriz\n");
+    for (int i = 0; i < N; i++) {
       for (int j = 0; j < N; j++)
-        printf("%4d ", A[i][j]);
+        printf("%4d ", A[i * N + j]);
       printf("\n");
     }
     printf("Vector\n");
@@ -63,10 +62,8 @@ int main(int argc, char **argv)
     MPI_Scatter(&A[i * P][0], N, MPI_INT,
                 &At[i][0], N, MPI_INT,
                 0, MPI_COMM_WORLD);
-    MPI_Scatter(&V[0], N, MPI_INT,
-                &Vt[0], N, MPI_INT,
-                0, MPI_COMM_WORLD);
   }
+  MPI_Bcast(V, N, MPI_INT, 0, MPI_COMM_WORLD);
 
   t1 = MPI_Wtime();
 
@@ -74,8 +71,7 @@ int main(int argc, char **argv)
 #ifdef _TEST
   printf("Process %d\n", rank);
   printf("Matrix\n");
-  for (int i = 0; i < sm; i++)
-  {
+  for (int i = 0; i < sm; i++) {
     for (int j = 0; j < N; j++)
       printf("%4d ", At[i][j]);
     printf("\n");
@@ -86,11 +82,11 @@ int main(int argc, char **argv)
   printf("\n\n");
 #endif
 
-  for (int i = 0; i < sm; i++)
+  for (int i = 0; i < N / P; i++)
   {
     Xt[i] = 0;
     for (int j = 0; j < N; j++)
-      Xt[i] += (At[i][j] * Vt[j]);
+      Xt[i] += (At[i][j] * V[j]);
 #ifdef _TEST
     printf("Xt[%d] from process %d: %d\n", i, rank, Xt[i]);
 #endif

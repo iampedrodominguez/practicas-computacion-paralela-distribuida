@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
     for (int i = 1; i < size; i++)
       getline(file, line);
     
-    file << ", " << (t1 - t0) * 1000 << size;
+    file << ", " << (t1 - t0) * 1000;
   }
 
   MPI_Finalize();

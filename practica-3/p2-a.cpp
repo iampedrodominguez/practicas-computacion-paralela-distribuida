@@ -39,13 +39,13 @@ int main(int argc, char **argv) {
   
   if (rank == 0) {
     
-    fstream file("p2.csv", ios::in | ios::out | ios::app);
+    fstream file("p2-a.csv", ios::in | ios::out | ios::app);
     string line;
 
     for (int i = 1; i < size; i++)
       getline(file, line);
     
-    file << ", " << (t1 - t0) * 1000 << size;
+    file << ", " << (t1 - t0) * 1000;
   }
 
   MPI_Finalize();

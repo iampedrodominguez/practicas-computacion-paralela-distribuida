@@ -24,8 +24,6 @@ int separate(int *x, int low, int high){
 }
 
 void qs(int *z, int zstart, int zend, int firstcall){
-  #pragma omp parallel
-  #pragma omp single
   {
     int pivot;
     
@@ -65,7 +63,13 @@ int main(int argc, char **argv){
   for(i = 0; i<n; i++) w[i] = rand()%100;
   for(i=0;i<n;i++) printf("%d\n",w[i]);
   printf("\n");
-  qs(w,0,n-1,1);
+  
+  #pragma omp parallel 
+  {
+    #pragma omp single
+    qs(w,0,n-1,1);
+  }
+
   if(n<250)
     for(i=0;i<n;i++) printf("%d\n",w[i]);
   return 0;

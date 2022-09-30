@@ -25,10 +25,10 @@ int separate(int *x, int low, int high){
 
 void qs(int *z, int zstart, int zend, int firstcall){
   #pragma omp parallel
+  #pragma omp single
   {
     int pivot;
     
-    #pragma omp single
     if (firstcall == 1) 
     {
       qs(z, 0, zend, 0);

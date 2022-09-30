@@ -37,6 +37,7 @@ void qs(int *z, int zstart, int zend, int firstcall){
       if (zstart < zend) 
       {
       	pivot = separate(z, zstart, zend);
+        
 	      #pragma omp task
         {
           printf("Thread working in task: %i\n", omp_get_thread_num());

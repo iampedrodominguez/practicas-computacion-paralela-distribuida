@@ -21,28 +21,55 @@ for p in P:
     avg = data.mean(axis=0)
     t.append(avg[0])
 
-
+formatter = ScalarFormatter()
+formatter.set_scientific(False)
 
 # Plot data
 fig, ax = plt.subplots()
-# format of the x axis (log scale) to integers
-#ax.xaxis.set_major_formatter(ScalarFormatter())
 ax.set_xscale('log', base=2)
-
-formatter = ScalarFormatter()
-formatter.set_scientific(False)
 ax.xaxis.set_major_formatter(formatter)
 
 plt.title('Processors vs Time para N = 10^6')
 plt.xlabel('Processors')
 plt.ylabel('Time (s)')
 plt.plot(P, t, 'o-')
-plt.savefig('plot.png')
+plt.savefig('time.png')
 
 # Clean plot
 plt.clf()
 
-# 
+# Speedup
+s = [t[0]/t[i] for i in range(len(t))]
+
+fig, ax = plt.subplots()
+ax.set_xscale('log', base=2)
+ax.xaxis.set_major_formatter(formatter)
+
+plt.title('Speedup vs Processors para N = 10^6')
+plt.xlabel('Processors')
+plt.ylabel('Speedup')
+plt.plot(P, s, 'o-')
+plt.savefig('speedup.png')
+
+# Clean plot
+plt.clf()
+
+# Efficiency
+e = [s[i]/P[i] for i in range(len(s))]
+
+fig, ax = plt.subplots()
+ax.set_xscale('log', base=2)
+ax.xaxis.set_major_formatter(formatter)
+
+plt.title('Efficiency vs Processors para N = 10^6')
+plt.xlabel('Processors')
+plt.ylabel('Efficiency')
+plt.plot(P, e, 'o-')
+plt.savefig('efficiency.png')
+
+# Clean plot
+plt.clf()
+
 
 '''
 # Tiempo secuencial

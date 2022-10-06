@@ -43,6 +43,7 @@ double OpArr(double *A, int *B, double *C, int n)
 
   scan_left<double>(C, x, n); // acumula los valores de elementos de C mas una constante x = 100
 
+
 #ifdef _DEBUG
   prnt(A, B, C, n);
 #endif
@@ -51,7 +52,7 @@ double OpArr(double *A, int *B, double *C, int n)
   {
 #pragma omp single
     {
-#pragma omp task depend(in                 \
+#pragma omp task private(i, j) depend(in                 \
                         : A, B) depend(out \
                                        : s1)
       {
@@ -71,7 +72,7 @@ double OpArr(double *A, int *B, double *C, int n)
             A[j] *= s1;
         }
       }
-#pragma omp task depend(in                 \
+#pragma omp task private(i, j) depend(in                 \
                         : B, C) depend(out \
                                        : s2)
       {
@@ -91,15 +92,17 @@ double OpArr(double *A, int *B, double *C, int n)
       }
 
 // calculo final
-#pragma omp taskwait
-      a = s1 / s2;
+#pragma omp taskwait 
+      {
+        a = s1 / s2;
 #ifdef _DEBUG
 #pragma omp taskwait
-      printf("s1: %f, s2: %f, a: %f\n", s1, s2, a);
+        printf("s1: %f, s2: %f, a: %f\n", s1, s2, a);
 #endif
-      res = 0;
-      for (i = 0; i < n; i++)
-        res += a * C[i];
+        res = 0;
+        for (i = 0; i < n; i++)
+          res += a * C[i];
+      }
     }
   }
   return res;
@@ -166,7 +169,7 @@ int main(int argc, char *argv[])
 
 // Define n
 #ifdef _DEBUG
-  n = 2;
+  n = 4;
   omp_set_num_threads(4);
 #else
   n = (int)atoi(argv[1]);

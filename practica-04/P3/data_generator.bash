@@ -5,7 +5,7 @@ make e3_data
 rm -rf Data
 mkdir -p Data
 
-n=$[10**3]
+n=$[10**4]
 times=$[3]
 max_exp_p=$[7]
 for e in $(seq 0 $max_exp_p)

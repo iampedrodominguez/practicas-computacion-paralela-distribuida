@@ -72,7 +72,7 @@ void prefix_sum(T *A, int n)
         for (j = 0; j <= n; j++)
             B[i][j] = C[i][j] = 0;
 
-#pragma omp parallel num_threads(8)
+#pragma omp parallel
     {
 #pragma omp for
         for (i = 1; i <= n; i++)
@@ -126,7 +126,7 @@ void scan_left(T *A, T x, int n)
     for (i = 0; i <= n; i++)
         for (j = 0; j <= n; j++)
             B[i][j] = C[i][j] = 0;
-#pragma omp parallel num_threads(8)
+#pragma omp parallel
     {
 #pragma omp for
         for (i = 1; i <= n; i++)

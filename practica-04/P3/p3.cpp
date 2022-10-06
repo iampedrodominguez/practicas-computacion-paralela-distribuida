@@ -34,6 +34,7 @@ double OpArr(double *A, int *B, double *C, int n)
 {
   int i, j;
   double s1, s2, a, res;
+  int tid;
 
   prefix_sum<double>(A, n); // obtiene el array de suma de prefijos de A
 
@@ -43,56 +44,68 @@ double OpArr(double *A, int *B, double *C, int n)
 
   scan_left<double>(C, x, n); // acumula los valores de elementos de C mas una constante x = 100
 
+
 #ifdef _DEBUG
   prnt(A, B, C, n);
 #endif
 
-  #pragma omp parallel default(none) shared(A, B, n, s1)
-  #pragma omp single private(i)
-  for(i = 0; i < n; i++) {
-    // primer bucle for
-    s1 = 0.0;
-
-    #pragma omp task private(j) depend(inout: s1) depend(in: A, B)
-    for(j = 0; j < n; j++)
-      #pragma omp atomic
-      s1 += A[j] * B[j];
-
-    #pragma omp task private(j) depend(in: s1) depend(inout: A)
-    for(j = 0; j < n; j++)
-      #pragma omp atomic
-      A[j] *= s1;
-  }
-
-  #pragma omp parallel default(none) shared(B, C, n, s2)
-  #pragma omp single private(i)
-  for(i = 0; i < n; i++) {
-    // segundo bucle for
-    s2 = 0.0;
-
-    #pragma omp task private(j) depend(inout: s2) depend(in: B, C)
-    for(int j = 0; j < n; j++)
-      #pragma omp atomic
-      s2 += B[j] * C[j];
-
-    #pragma omp task private(j) depend(in: s2) depend(inout: C)
-    for(int j = 0; j < n; j++)
-      #pragma omp atomic
-      C[j] *= s2;
-  }
-
-  // calculo final
-  a = s1 / s2;
+#pragma omp parallel
+  {
+#pragma omp single
+    {
+#pragma omp task private(i, j) depend(in                 \
+                        : A, B) depend(out \
+                                       : s1)
+      {
 #ifdef _DEBUG
-  std::cout << "s1: " << s1 << std::endl;
-  std::cout << "s2: " << s2 << std::endl;
-  std::cout << "a: " << a << std::endl;
+        tid = omp_get_thread_num();
+        printf("Task 1 working in thread: %i\n", tid);
 #endif
-  res = 0;
 
-  for (i = 0; i < n; i++)
-    res += a * C[i];
+        for (i = 0; i < n; i++)
+        { //
+          s1 = 0.0;
 
+          for (j = 0; j < n; j++)
+            s1 += A[j] * B[j];
+
+          for (j = 0; j < n; j++)
+            A[j] *= s1;
+        }
+      }
+#pragma omp task private(i, j) depend(in                 \
+                        : B, C) depend(out \
+                                       : s2)
+      {
+#ifdef _DEBUG
+        tid = omp_get_thread_num();
+        printf("Task 2 working in thread: %i\n", tid);
+#endif
+
+        for (i = 0; i < n; i++)
+        { //
+          s2 = 0.0;
+          for (j = 0; j < n; j++)
+            s2 += B[j] * C[j];
+          for (j = 0; j < n; j++)
+            C[j] *= s2;
+        }
+      }
+
+// calculo final
+#pragma omp taskwait 
+      {
+        a = s1 / s2;
+#ifdef _DEBUG
+#pragma omp taskwait
+        printf("s1: %f, s2: %f, a: %f\n", s1, s2, a);
+#endif
+        res = 0;
+        for (i = 0; i < n; i++)
+          res += a * C[i];
+      }
+    }
+  }
   return res;
 }
 
@@ -130,9 +143,9 @@ double OpArrSeq(double *A, int *B, double *C, int n)
   }
 
   a = s1 / s2;
-  std::cout << "s1: " << s1 << std::endl;
-  std::cout << "s2: " << s2 << std::endl;
-  std::cout << "a: " << a << std::endl;
+#ifdef _DEBUG
+  printf("s1: %f, s2: %f, a: %f\n", s1, s2, a);
+#endif
 
   res = 0;
   for (i = 0; i < n; i++)
@@ -158,6 +171,7 @@ int main(int argc, char *argv[])
 // Define n
 #ifdef _DEBUG
   n = 4;
+  omp_set_num_threads(4);
 #else
   n = (int)atoi(argv[1]);
 #endif
@@ -166,6 +180,7 @@ int main(int argc, char *argv[])
 #ifdef _DATA
   P = (int)atoi(argv[2]);
   filename = argv[3];
+  omp_set_num_threads((int)P);
 #endif
 
   A = new double[n];
@@ -180,27 +195,21 @@ int main(int argc, char *argv[])
   }
 
 #ifdef _DEBUG
-  double * _A, *_C;
-  int * _B;
-  _A = new double[n];
-  _B = new int[n];
-  _C = new double[n];
-  std::copy(A, A + n, _A);
-  std::copy(B, B + n, _B);
-  std::copy(C, C + n, _C);
-  res = OpArrSeq(_A, _B, _C, n);
-  std::cout << "\tResultadoSeq: " << res << std::endl;
-
+  prnt(A, B, C, n);
+#ifdef _SEQ
+  res = OpArrSeq(A, B, C, n);
+  std::cout << "\tResultadoSeq: " << res << "\n\n";
+#else
   res = OpArr(A, B, C, n);
-  std::cout << "\tResultado: " << res << std::endl;
-
-  delete[] _A;
-  delete[] _B;
-  delete[] _C;
+  std::cout << "\tResultado: " << res << "\n\n";
+#endif
 #else
   auto t0 = std::chrono::steady_clock::now();
   res = OpArr(A, B, C, n);
+
+#ifdef _DEBUG
   std::cout << "\tResultado: " << res << std::endl;
+#endif
   auto t1 = std::chrono::steady_clock::now();
   auto dtime = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count();
   std::cout << "Tiempo: " << dtime << " ms" << std::endl;

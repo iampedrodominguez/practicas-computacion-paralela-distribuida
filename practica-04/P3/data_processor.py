@@ -39,7 +39,8 @@ plt.savefig('time.png')
 plt.clf()
 
 # Speedup
-s = [t[0]/t[i] for i in range(len(t))]
+s = [t[0]/t[i] for i in range(1,len(t))]
+P = P[1:]
 
 fig, ax = plt.subplots()
 ax.set_xscale('log', base=2)

@@ -6,8 +6,8 @@ rm -rf Data
 mkdir -p Data
 
 n=$[10**4]
-times=$[3]
-max_exp_p=$[7]
+times=$[10]
+max_exp_p=$[8]
 for e in $(seq 0 $max_exp_p)
 do
    p=$[2**$e]

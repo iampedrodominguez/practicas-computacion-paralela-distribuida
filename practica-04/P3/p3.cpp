@@ -90,27 +90,16 @@ double OpArr(double *A, int *B, double *C, int n)
         }
       }
 
-      // calculo final
+// calculo final
+#pragma omp taskwait
       a = s1 / s2;
 #ifdef _DEBUG
-      std::cout << "s1: " << s1 << std::endl;
-      std::cout << "s2: " << s2 << std::endl;
-      std::cout << "a: " << a << std::endl;
+#pragma omp taskwait
+      printf("s1: %f, s2: %f, a: %f\n", s1, s2, a);
 #endif
       res = 0;
-
-#pragma omp taskwait depend(in                 \
-                            : a, C) depend(out \
-                                           : res)
-      {
-        for (i = 0; i < n; i++)
-          res += a * C[i];
-        a = s1 / s2;
-
-        res = 0;
-        for (i = 0; i < n; i++)
-          res += a * C[i];
-      }
+      for (i = 0; i < n; i++)
+        res += a * C[i];
     }
   }
   return res;
@@ -151,9 +140,7 @@ double OpArrSeq(double *A, int *B, double *C, int n)
 
   a = s1 / s2;
 #ifdef _DEBUG
-  std::cout << "s1: " << s1 << std::endl;
-  std::cout << "s2: " << s2 << std::endl;
-  std::cout << "a: " << a << std::endl;
+  printf("s1: %f, s2: %f, a: %f\n", s1, s2, a);
 #endif
 
   res = 0;
@@ -204,8 +191,8 @@ int main(int argc, char *argv[])
   }
 
 #ifdef _DEBUG
-#ifdef _SEQ
   prnt(A, B, C, n);
+#ifdef _SEQ
   res = OpArrSeq(A, B, C, n);
   std::cout << "\tResultadoSeq: " << res << "\n\n";
 #else

@@ -1,6 +1,7 @@
 #include <mpi.h>
 #include <math.h>
 #include <vector>
+#include <cstring>
 #include <iostream>
 
 using namespace std;

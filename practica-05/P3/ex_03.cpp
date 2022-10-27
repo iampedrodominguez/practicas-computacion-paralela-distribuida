@@ -21,8 +21,8 @@ int main(int argc,char *argv[]) {
 
   int i, j, NP;
   NP = ceil(N / P);
-  int A[N * N], At[N * N];
-  int V[N], X[N], Xt[N];
+  int A[N * N], At[NP * N];
+  int V[N], X[N], Xt[NP];
 
   if(rank == 0){
     for(i = 0; i < N; i++){
@@ -50,12 +50,6 @@ int main(int argc,char *argv[]) {
   MPI_Scatter(&A, NP * N, MPI_INT, &At, NP * N, MPI_INT, 0, MPI_COMM_WORLD);
   MPI_Barrier(MPI_COMM_WORLD);
 
-  for(i = 0; i < NP; i++) {
-    for(j = 0; j < N; j++)
-      printf("%d ", At[i * N + j]);
-    printf("\n");
-  }
-
   memset(Xt, 0, sizeof(Xt));
   #pragma omp parallel for collapse(2)
   for(i = 0; i < NP; i++) {
@@ -66,8 +60,7 @@ int main(int argc,char *argv[]) {
   }
 
   MPI_Barrier(MPI_COMM_WORLD);
-  // for(i = 0; i < NP; i++)
-    MPI_Gather(&Xt, NP, MPI_INT, &X, NP, MPI_INT, 0, MPI_COMM_WORLD);
+  MPI_Gather(&Xt, NP, MPI_INT, &X, NP, MPI_INT, 0, MPI_COMM_WORLD);
 
   // -------------------------------------------------------------------------
 

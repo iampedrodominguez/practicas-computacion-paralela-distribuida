@@ -71,7 +71,7 @@ int main(int argc, char **argv)
         {
             for (int j = 0; j < size; j++)
                 globaldata[j] = rand() % val_max + 1;
-#ifdef _DEBUG
+#ifdef _DEBUG_PRINT
             printf("Iteration %d: ", i);
             printf(" Global data %d %d %d %d\t", globaldata[0], globaldata[1], globaldata[2], globaldata[3]);
 #endif
@@ -88,7 +88,7 @@ int main(int argc, char **argv)
         // resultado en proceso 0
         if (rank == 0)
         {
-#ifdef _DEBUG
+#ifdef _DEBUG_PRINT
             printf("Result: %d\n", globalcomparation);
 #endif
             if(globalcomparation)

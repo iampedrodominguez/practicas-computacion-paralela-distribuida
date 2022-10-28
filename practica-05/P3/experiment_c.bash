@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Load Khipu modules
+
+module load cmake/3.22.2
+module load gcc/9.2.0
+module load mpich/4.0
+
+# Experiment
+
 make clean
 make clean_data
 
@@ -24,3 +32,9 @@ do
     done
   done
 done
+
+# Unload Khipu modules
+
+module unload cmake/3.22.2
+module unload gcc/9.2.0
+module unload mpich/4.0

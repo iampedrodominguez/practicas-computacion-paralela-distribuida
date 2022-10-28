@@ -24,7 +24,7 @@ do
   for j in {1..5}
   do
     p=$((2 ** j))
-    filename="data_$N\_$t\_$p.csv"
+    filename="data_$N\_$p\_$t.csv"
     echo "Experiment C: $N $t $p"
     for _ in {1..10}
     do

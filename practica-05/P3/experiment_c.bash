@@ -18,10 +18,10 @@ do
 done
 
 make ex_03.mpi.data
-for i in {1..2}
+for i in {1..4}
 do
   t=$((2 ** i))
-  for j in {1..1}
+  for j in {1..4}
   do
     p=$((2 ** j))
     filename="data_$N\_$t\_$p.csv"

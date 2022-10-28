@@ -3,6 +3,7 @@
 #include <iostream>
 #include <math.h>
 #include <mpi.h>
+#include <omp.h>
 #include <cstring>
 
 using namespace std;
@@ -34,11 +35,14 @@ int main(int argc,char *argv[]) {
 
   if(rank == 0){
     // NOTE: Read Matrix and Vector for master
+    #pragma omp parallel for collapse(2) num_threads(T)
     for(i = 0; i < N; i++) {
       for(j = 0; j < N; j++)
         A[i * N + j] = i;
-      V[i] = 1;
     }
+    #pragma omp parallel for num_threads(T)
+    for(i = 0; i < N; i++)
+      V[i] = 1;
 
 #ifdef _TEST
     printf("A:\n");
@@ -70,7 +74,7 @@ int main(int argc,char *argv[]) {
   
   // NOTE: Local multiply
   memset(Xt, 0, sizeof(Xt));
-  #pragma omp parallel for collapse(2)
+  #pragma omp parallel for collapse(2) num_threads(T)
   for(i = 0; i < NP; i++) {
     for(j = 0; j < N; j++) {
       #pragma omp atomic

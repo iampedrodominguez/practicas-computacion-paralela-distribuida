@@ -2,7 +2,7 @@ CC := mpic++
 CXX := g++
 
 LDFLAGS := -fopenmp -lpthread
-CCFLAGS := -std=c++20
+CCFLAGS := -std=c++2a
 
 TESTFLAGS := -D_TEST
 DATAFLAGS := -D_DATA

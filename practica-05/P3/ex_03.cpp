@@ -1,56 +1,74 @@
-#include <mpi.h>
-#include <math.h>
-#include <vector>
-#include <cstring>
+#include <fstream>
+#include <iomanip>
 #include <iostream>
+#include <math.h>
+#include <mpi.h>
+#include <string>
 
 using namespace std;
 
 int main(int argc,char *argv[]) {
-  int rank, N, P;
+  int rank, N, P, T;
+  string filename;
+  double t0 = 0.0, t1 = 0.0, t2 = 0.0, t3 = 0.0, tf = 0.0;
 
 	MPI_Init(&argc, &argv);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &P);
 
-  if(argc == 1) {
+  if(argc != 4) {
+    filename = "./data/data.csv";
     N = 10;
+    T = 2;
   }
   else {
-    N = atoi(argv[1]);
+    filename = argv[1];
+    N = atoi(argv[2]);
+    T = atoi(argv[3]);
   }
 
-  int i, j, NP;
-  NP = ceil(N / P);
+  int i, j;
+  const int NP = ceil(N / P);
   int A[N * N], At[NP * N];
   int V[N], X[N], Xt[NP];
 
   if(rank == 0){
-    for(i = 0; i < N; i++){
+    // NOTE: Read Matrix and Vector for master
+    for(i = 0; i < N; i++) {
       for(j = 0; j < N; j++)
         A[i * N + j] = i;
       V[i] = 1;
     }
-#ifdef TEST
-    printf("Matrix A:\n");
+
+#ifdef _TEST
+    printf("A:\n");
     for(i = 0; i < N; i++) {
       for(j = 0; j < N; j++)
-        printf("%d ", A[i * N + j]);
+        printf("%3d ", A[i * N + j]);
       printf("\n");
     }
-    printf("Vector V:\n");
+    printf("V:\n");
     for(i = 0; i < N; i++)
-      printf("%d ", V[i]);
+      printf("%3d ", V[i]);
     printf("\n");
 #endif
   }
 
   // -------------------------------------------------------------------------
 
+  if(rank == 0)
+    t0 = MPI_Wtime();
+  
+  // NOTE: Send distributed rows to all p available
   MPI_Bcast(&V, N, MPI_INT, 0, MPI_COMM_WORLD);
   MPI_Scatter(&A, NP * N, MPI_INT, &At, NP * N, MPI_INT, 0, MPI_COMM_WORLD);
   MPI_Barrier(MPI_COMM_WORLD);
 
+  t1 = MPI_Wtime();
+
+  // -------------------------------------------------------------------------
+  
+  // NOTE: Local multiply
   memset(Xt, 0, sizeof(Xt));
   #pragma omp parallel for collapse(2)
   for(i = 0; i < NP; i++) {
@@ -59,17 +77,43 @@ int main(int argc,char *argv[]) {
       Xt[i] += At[i * N + j] * V[j];
     }
   }
+  
+  t2 = MPI_Wtime();
 
+  // -------------------------------------------------------------------------
+
+  // NOTE: Gather array in master
   MPI_Barrier(MPI_COMM_WORLD);
   MPI_Gather(&Xt, NP, MPI_INT, &X, NP, MPI_INT, 0, MPI_COMM_WORLD);
+
+  t3 = MPI_Wtime();
 
   // -------------------------------------------------------------------------
 
   if(rank == 0) {
-    printf("Resultado:\n");
+    tf = MPI_Wtime();
+#ifdef _TEST
+    printf("R:\n");
     for(i = 0; i < N; i++)
-      printf("%d ", X[i]);
+      printf("%3d ", X[i]);
     printf("\n");
+
+    printf("\n");
+    printf("Time for Scatter: %.4f\n", 1000 * (t1 - t0));
+    printf("Time for Gather: %.4f\n", 1000 * (t3 - t2));
+    printf("Time for Communication: %.4f\n", 1000 * (t1 - t0 + t3 - t2));
+    printf("Time for Computation: %.4f\n", 1000 * (t2 - t1));
+    printf("Total Time: %.4f\n", 1000 * (tf - t0));
+    printf("\n");
+#endif
+
+#ifdef _DATA
+    printf("Data %s\n", filename);
+    ofstream output;
+    output.open(filename, ios::app);
+    output << fixed << setprecision(4) << 1000 * (t1 - t0 + t3 - t2) << ", " << 1000 * (t2 - t1) << ", " << 1000 * (tf - t0) << "\n";
+    output.close();
+#endif
   }
 
   MPI_Finalize();

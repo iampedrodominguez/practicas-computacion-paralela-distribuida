@@ -108,7 +108,6 @@ int main(int argc,char *argv[]) {
 #endif
 
 #ifdef _DATA
-    printf("Data %s\n", filename);
     ofstream output;
     output.open(filename, ios::app);
     output << fixed << setprecision(4) << 1000 * (t1 - t0 + t3 - t2) << ", " << 1000 * (t2 - t1) << ", " << 1000 * (tf - t0) << "\n";

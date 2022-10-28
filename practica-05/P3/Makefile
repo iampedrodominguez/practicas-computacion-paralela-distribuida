@@ -16,15 +16,19 @@ N = 1000
 P = 1
 T = 2
 
-%.build.data: %.cpp
+%.mpi.data: %.cpp
 	@$(CC) $(LDFLAGS) $(CCFLAGS) $(DATAFLAGS) -o $(TARGET) $<
 
-%.build.test: %.cpp
+%.mpi.test: %.cpp
 	@$(CC) $(LDFLAGS) $(CCFLAGS) $(TESTFLAGS) -o $(TARGET) $<
 
-run:
+mpi.run:
 	@$(MKDIR) $(DATA_DIR)
 	@mpirun -np $(P) ./$(TARGET) $(DATA_DIR)/$(FILE) $(N) $(T)
+
+cc.run:
+	@$(MKDIR) $(DATA_DIR)
+	@$(CXX) ./$(TARGET) $(DATA_DIR)/$(FILE) $(N) $(T)
 
 clean:
 	@rm -rf $(TARGET)

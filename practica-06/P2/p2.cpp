@@ -29,12 +29,12 @@ int main(int argc, char *argv[])
   imprimir_array(numeros, size);
   // se ordena el array secuencialmente
   Sortseq(numeros2, size);
-  //SortEvenOdd(numeros, size);
-  Sort(numeros, size);
+  SortEvenOdd(numeros, size);
+  //Sort(numeros, size);
   // se imprime el array ordenado
   printf("\nArray ordenado Seq:\n");
   imprimir_array(numeros2, size);
-  printf("Array ordenado:\n");
+  printf("Array ordenado Odd - Even:\n");
   imprimir_array(numeros, size);
 
   bool equals = true;

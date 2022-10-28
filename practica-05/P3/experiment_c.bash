@@ -6,7 +6,7 @@ module load cmake/3.22.2
 module load gcc/9.2.0
 module load mpich/4.0
 
-# Experiment
+# Experiment C
 
 make clean
 make clean_data
@@ -17,7 +17,7 @@ do
   N=$((N * (2 ** i)))
 done
 
-make ex_03.mpi.data
+make ex_03_c.mpi.data
 for i in {1..5}
 do
   t=$((2 ** i))
@@ -32,6 +32,8 @@ do
     done
   done
 done
+
+make clean
 
 # Unload Khipu modules
 

@@ -1,5 +1,5 @@
 CC := mpic++
-CXX := clang++
+CXX := g++
 
 LDFLAGS := -fopenmp -lpthread
 CCFLAGS := -std=c++20
@@ -12,9 +12,15 @@ MKDIR := mkdir -p
 
 TARGET := $(notdir $(CURDIR))
 FILE = data.csv
-N = 1000
+N = 10
 P = 1
 T = 2
+
+%.omp.data: %.cpp
+	@$(CXX) $(LDFLAGS) $(CCFLAGS) $(DATAFLAGS) -o $(TARGET) $<
+
+%.omp.test: %.cpp
+	@$(CXX) $(LDFLAGS) $(CCFLAGS) $(TESTFLAGS) -o $(TARGET) $<
 
 %.mpi.data: %.cpp
 	@$(CC) $(LDFLAGS) $(CCFLAGS) $(DATAFLAGS) -o $(TARGET) $<
@@ -26,9 +32,9 @@ mpi.run:
 	@$(MKDIR) $(DATA_DIR)
 	@mpirun -np $(P) ./$(TARGET) $(DATA_DIR)/$(FILE) $(N) $(T)
 
-cc.run:
+omp.run:
 	@$(MKDIR) $(DATA_DIR)
-	@$(CXX) ./$(TARGET) $(DATA_DIR)/$(FILE) $(N) $(T)
+	@./$(TARGET) $(DATA_DIR)/$(FILE) $(N) $(T)
 
 clean:
 	@rm -rf $(TARGET)

@@ -20,12 +20,12 @@ done
 make ex_03_c.mpi.data
 for i in {1..5}
 do
-  t=$((2 ** i))
+  p=$((2 ** i))
   for j in {1..5}
   do
-    p=$((2 ** j))
+    t=$((2 ** j))
     filename="data_$N\_$p\_$t.csv"
-    echo "Experiment C: $N $t $p"
+    echo "Experiment C: $N $p $t"
     for _ in {1..10}
     do
       make mpi.run N=$N T=$t P=$p FILE=$filename

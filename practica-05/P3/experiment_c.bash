@@ -12,16 +12,16 @@ make clean
 make clean_data
 
 N=1
-for i in {1..4}
+for i in {1..6}
 do
   N=$((N * (2 ** i)))
 done
 
 make ex_03.mpi.data
-for i in {1..4}
+for i in {1..6}
 do
   t=$((2 ** i))
-  for j in {1..4}
+  for j in {1..6}
   do
     p=$((2 ** j))
     filename="data_$N\_$t\_$p.csv"

@@ -2,9 +2,9 @@
 
 # Load Khipu modules
 
-# module load cmake/3.22.2
-# module load gcc/9.2.0
-# module load mpich/4.0
+module load cmake/3.22.2
+module load gcc/9.2.0
+module load mpich/4.0
 
 # Experiment
 
@@ -18,10 +18,10 @@ do
 done
 
 make ex_03.mpi.data
-for i in {1..1}
+for i in {1..5}
 do
   t=$((2 ** i))
-  for j in {1..1}
+  for j in {1..5}
   do
     p=$((2 ** j))
     filename="data_$N\_$t\_$p.csv"
@@ -35,6 +35,6 @@ done
 
 # Unload Khipu modules
 
-# module unload cmake/3.22.2
-# module unload gcc/9.2.0
-# module unload mpich/4.0
+module unload cmake/3.22.2
+module unload gcc/9.2.0
+module unload mpich/4.0

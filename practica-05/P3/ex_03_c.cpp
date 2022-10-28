@@ -34,6 +34,7 @@ int main(int argc,char *argv[]) {
   int V[N], X[N], Xt[NP];
 
   if(rank == 0){
+cout << P << '\n';
     // NOTE: Read Matrix and Vector for master
     #pragma omp parallel for collapse(2) num_threads(T)
     for(i = 0; i < N; i++) {

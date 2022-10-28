@@ -3,4 +3,4 @@
 *.out
 core*
 /venv
-/practica-05/*.csv
+/practica-05/*/*/*.csv

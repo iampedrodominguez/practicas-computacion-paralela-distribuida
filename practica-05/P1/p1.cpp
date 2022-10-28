@@ -21,8 +21,37 @@ using namespace std;
 
     Para debuggear, se utiliza un máximo valor de 2 (solo dos opciones, 1 y 2) y un máximo de 10 intentos.
     Para este caso, la probabilidad de éxito: 1/16, y de fracaso: 15/16.
-    C(n, 10) * (1/16)^10 * (1-1/16)^(n-10) 
-    Para n = 200, P = C(200,10)*(1/16)^10 * (15/16)^190
+    1 o 2, 16 posibilidades, 1 forma de ganar
+    P(acertar) = 1/16 = 0.0625
+    P(fallar) = 15/16
+
+    P(A/B) = P(A int B) / P(B)
+    P(A/B) = P(A)*P(B/A)/P(B)
+    - P(Acertar en el 2do / fallar en el 1ero) = P(acertar en el 2do y fallar en el 1ero) / P(fallar en el 1ero) = 
+    15/240 / 15/16 = 16/240 = 1/15 = 0.066666666666666666667
+
+    
+    1ero                                2do
+    15 posibilidades que falla          16 posibilidades para cada arreglo anterior -> 240 en total
+
+    validos son 15
+    - P(no acertar en el 2do dado que falle en el 1ero) = 1 - 1/15 = 14/15 = 0.9333333333333333333333
+
+    
+    
+    - P(Acertar en el 3ero / falle en los dos primeros) = P(acertar en el 3ero y fallar en los dos primeros) / P(fallar en los dos primeros) = 
+    225/15*15*16 / 14/15 = 1/16 / 14/15 = 15/ (14*16) = 15 / 224 = 0.066964286
+
+    1ero        2do         3ero
+    15 falla    15 falla    16 posibilidades para cada uno de los 225 -> 15*15*16 en total.
+
+
+
+    P(Acertar en el 10mo fallando los 9 primeros)
+    1ero        2do         3ero        4to         ...     9no         10mo
+    15 falla    15 falla    15 falla    15 falla    ...     15 falla    Acierta
+
+    P = 15 a la 9 / 15 a la 15 = 15 a la -6
     
 */
 

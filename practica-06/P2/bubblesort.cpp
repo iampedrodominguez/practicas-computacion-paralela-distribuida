@@ -9,7 +9,7 @@ void Swap(int *X, int *Y);
 void leer_array(int array[], int *limite, char *filename);
 
 int numeros[LIMIT]; // tamanho maximo del array
-int size = LIMIT;
+int size = LIMIT;  
 
 int main(int argc, char *argv[])
 {

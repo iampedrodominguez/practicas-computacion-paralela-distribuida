@@ -6,7 +6,7 @@ module load cmake/3.22.2
 module load gcc/9.2.0
 module load mpich/4.0
 
-# Experiment C
+# Experiment A
 
 make clean
 make clean_data
@@ -21,7 +21,7 @@ make ex_03_a.mpi.data
 for j in {1..5}
 do
   p=$((2 ** j))
-  filename="data_$N\_\_$p.csv"
+  filename="data_$N\_$p.csv"
   echo "Experiment A: $N $p"
   for _ in {1..10}
   do

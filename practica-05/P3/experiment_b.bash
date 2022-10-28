@@ -5,7 +5,7 @@
 module load cmake/3.22.2
 module load gcc/9.2.0
 
-# Experiment C
+# Experiment B
 
 make clean
 make clean_data

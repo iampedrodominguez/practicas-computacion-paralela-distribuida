@@ -3,7 +3,7 @@
 #include <iostream>
 #include <math.h>
 #include <mpi.h>
-#include <string>
+#include <cstring>
 
 using namespace std;
 

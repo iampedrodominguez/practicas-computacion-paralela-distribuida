@@ -1,7 +1,7 @@
 #include <iostream>
 #include <omp.h>
 
-using namespace std;
+using namespace std; 
 
 #define LIMIT 1000
 

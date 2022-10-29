@@ -14,45 +14,20 @@ using namespace std;
     el número objetivo. La variable continueComputing cambiará a 0 si ya se encuentra una solución para no seguir
     buscando.
 
-    Por probabilidades, la probabilidad de éxito en cada iteración sería
-        1/100 * 1/100 * 1/100 * 1/100 = 1/100 000 000 = 10^-8
-    Por lo que, en 1000 intentos, la probabilidad de éxito sería
-        (10^-8)^1000 = 10^-8000
+    Por probabilidades, correspondería a una probabilidad de éxito de 1/100^4, de fracaso 1-(1/100^4), y un 
+    máximo de 1000 intentos. Esto consiste en una probabilidad binomial acumulativa P(X >= 1) = 1 - P(X = 0) = 
+    1 - 1000C0 * (1/100^4)^0 * (1 - 1/100^4)^1000 = 1 - 1 * 1 * (99 999 999/100 000 000)^1000 
+    = 9.9999500501661665858295775277568e-6 = 0.0000099999500501661665858295775277568 = 0.00001 = 0.001%.
+    Es decir, es casi imposible que Eduardo invite la cena.
 
-    Para debuggear, se utiliza un máximo valor de 2 (solo dos opciones, 1 y 2) y un máximo de 10 intentos.
-    Para este caso, la probabilidad de éxito: 1/16, y de fracaso: 15/16.
-    1 o 2, 16 posibilidades, 1 forma de ganar
-    P(acertar) = 1/16 = 0.0625
-    P(fallar) = 15/16
+    Para probar el código, se utiliza un máximo valor de 2 (solo dos opciones, 1 y 2) y un máximo de 10 intentos.
+    Para este caso, la probabilidad de éxito: 1/16, y de fracaso: 15/16. Consiste de una probabilidad binomial 
+    acumulativa P(X >= 1) o 1 - P(X = 0) = 1 - 10C0 * 1/16^(0) * (15/16)^(10-0) = 1 - 0.52446047504872694844380021095276 
+    = 0.47553952495127305155619978904724 = 47.55%, lo que se demuestra en la gráfica.
 
-    P(A/B) = P(A int B) / P(B)
-    P(A/B) = P(A)*P(B/A)/P(B)
-    - P(Acertar en el 2do / fallar en el 1ero) = P(acertar en el 2do y fallar en el 1ero) / P(fallar en el 1ero) = 
-    15/240 / 15/16 = 16/240 = 1/15 = 0.066666666666666666667
-
-    
-    1ero                                2do
-    15 posibilidades que falla          16 posibilidades para cada arreglo anterior -> 240 en total
-
-    validos son 15
-    - P(no acertar en el 2do dado que falle en el 1ero) = 1 - 1/15 = 14/15 = 0.9333333333333333333333
-
-    
-    
-    - P(Acertar en el 3ero / falle en los dos primeros) = P(acertar en el 3ero y fallar en los dos primeros) / P(fallar en los dos primeros) = 
-    225/15*15*16 / 14/15 = 1/16 / 14/15 = 15/ (14*16) = 15 / 224 = 0.066964286
-
-    1ero        2do         3ero
-    15 falla    15 falla    16 posibilidades para cada uno de los 225 -> 15*15*16 en total.
-
-
-
-    P(Acertar en el 10mo fallando los 9 primeros)
-    1ero        2do         3ero        4to         ...     9no         10mo
-    15 falla    15 falla    15 falla    15 falla    ...     15 falla    Acierta
-
-    P = 15 a la 9 / 15 a la 15 = 15 a la -6
-    
+    Como se observa en la gráfica de 47.55% de probabilidad, los experimentos se ajustan a este valor, lo cual no se
+    observa en la gráfica de 0.001% de probabilidad ya que es muy baja. En conclusión, bajo las condiciones del
+    problema, Eduardo no invitará la cena.
 */
 
 int main(int argc, char **argv)
@@ -137,7 +112,7 @@ int main(int argc, char **argv)
         //Print to file
         FILE *fp;
         fp = fopen(filename.c_str(), "a");
-        fprintf(fp, "%d\n", continueComputing);
+        fprintf(fp, "%d\n", !continueComputing);
     }
 
     MPI_Finalize();

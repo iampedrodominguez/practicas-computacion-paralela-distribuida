@@ -2,15 +2,18 @@
 
 using namespace std;
 
-int main()
+int main(int argc, char *argv[])
 {
     //Generate random data and write it to a file
-    int N = 32;
+    srand(time(NULL));
+    int N = stoi(argv[1]);
     int num;
-    FILE *f = fopen("data.txt", "w");
+    int maxNum = 16 * N;
+    string filename = "Data/data" + to_string(N) + ".txt";
+    FILE *f = fopen(filename.c_str(), "w");
     for (int i = 0; i < N; i++)
     {
-        num = rand() % 1000;
+        num = rand() % maxNum;
         fprintf(f, "%d\n", num);
     }
     fclose(f);

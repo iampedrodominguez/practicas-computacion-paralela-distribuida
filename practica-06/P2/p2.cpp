@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
 #endif
   // se ordena el array secuencialmente
   t1 = Sortseq(numeros, size);
+  //t1 = 0.0;
   // se divide el array en p partes y se ordena cada parte, luego se realiza un merge
   t2 = SortParallel(numeros2, size);
   // se ordena el array con el algoritmo EvenOdd

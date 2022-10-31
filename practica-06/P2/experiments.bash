@@ -12,7 +12,7 @@ filename="Data/data"$n".txt"
 # falta de 2^19 y 2^5 proccessors, 2^20 demora mucho
 
 #for i in $(seq 10 20)
-for i in $(seq 19 20)
+for i in $(seq 20 25)
 do
    n=$[2**$i]
    filename="Data/data"$n".txt"
@@ -21,7 +21,7 @@ do
    make e2_data 
    make run_e2_data N=$n
 
-   for j in $(seq 5 7)
+   for j in $(seq 2 7)
    do
       p=$[2**$j]
 

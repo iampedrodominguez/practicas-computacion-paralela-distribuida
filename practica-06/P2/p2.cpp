@@ -68,6 +68,14 @@ int main(int argc, char *argv[])
   else
     printf("\nArrays diferentes\n");
 
+#ifndef _DEBUG
+  // save t1, t2, t3 to a file
+  string filename = "Data/times.csv";
+  FILE *f = fopen(filename.c_str(), "a");
+  fprintf(f, "%d, %d, %f, %f, %f\n", size, p, t1, t2, t3);
+  fclose(f);
+#endif
+
   delete numeros;
   delete numeros2;
   delete numeros3;

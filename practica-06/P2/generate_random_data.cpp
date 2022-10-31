@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
     srand(time(NULL));
     int N = stoi(argv[1]);
     int num;
-    int maxNum = 16 * N;
+    int maxNum = N;
     string filename = "Data/data" + to_string(N) + ".txt";
     FILE *f = fopen(filename.c_str(), "w");
     for (int i = 0; i < N; i++)

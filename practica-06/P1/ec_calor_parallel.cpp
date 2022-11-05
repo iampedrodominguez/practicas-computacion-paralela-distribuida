@@ -41,13 +41,14 @@ int main(int argc, char *argv[])
     for (i = 1; i <= n; i++)
         u[i] = inicial(x[i], tiempo);
     u[n + 1] = 0.0;
-    MPI::Init();
-    n_of_process = MPI::COMM_WORLD.Get_size ( );
+    MPI_Init ( &argc, &argv );
+    MPI_Comm_rank ( MPI_COMM_WORLD, &rank);
+    MPI_Comm_size ( MPI_COMM_WORLD, &n_of_process);
+    MPI_Status s;
     // Valores de temperatura al siguiente intervalo de tiempo
     for (j = 1; j <= j_max; j++)
     {
         tnew += dt;
-        rank = MPI::COMM_WORLD.Get_rank();
         // actualizar temperatura
         for (i = 1; i <= n; i++)
         {
@@ -55,16 +56,16 @@ int main(int argc, char *argv[])
         }
 
         // send, recv
-        if (rank<n_of_process-1) MPI::COMM_WORLD.Send ( &unew[n], 1, MPI::DOUBLE, rank+1, 1 );
+        if (rank<n_of_process-1) MPI_Send ( &unew[n], 1, MPI_DOUBLE, rank+1, 1,MPI_COMM_WORLD);
         
-        if(rank>0)   MPI::COMM_WORLD.Recv ( &unew[0], 1, MPI::DOUBLE, rank-1, 1);
+        if(rank>0)   MPI_Recv ( &unew[0], 1, MPI_DOUBLE, rank-1, 1,MPI_COMM_WORLD,&s);
 
         // aplicar condiciones de frontera
         unew[1] = frontera(x[1], tnew,rank);
 
         // send recv 
-        if (0<rank) MPI::COMM_WORLD.Send ( &unew[1], 1, MPI::DOUBLE, rank-1,2);  
-        if (rank<n_of_process-1) MPI::COMM_WORLD.Recv ( &unew[n+1], 1, MPI::DOUBLE, rank+1,2);
+        if (0<rank) MPI_Send ( &unew[1], 1, MPI_DOUBLE, rank-1,2,MPI_COMM_WORLD);  
+        if (rank<n_of_process-1) MPI_Recv ( &unew[n+1], 1, MPI_DOUBLE, rank+1,2,MPI_COMM_WORLD,&s);
         // aplicar condiciones de frontera
         unew[n] = frontera(x[n], tnew,rank);
 

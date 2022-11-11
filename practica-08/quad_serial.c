@@ -19,7 +19,7 @@ int main ( int argc, char *argv[] )
   double error;
   double exact = 0.49936338107645674464;
   int i;
-  int n = 10000000;
+  int n = 100000000;
   double total;
   double wtime;
   double wtime1;
@@ -39,14 +39,17 @@ int main ( int argc, char *argv[] )
   wtime1 = cpu_time ( );
 
   total = 0.0;
-  for ( i = 0; i < n; i++ )
-  {
+  // NOTE: 10 * n floating point operations
+  for ( i = 0; i < n; i++ ) {
+    // NOTE: 4 floating point operations
     x = ( ( n - i - 1 ) * a + ( i ) * b ) / ( n - 1 );
+    // NOTE: 6 floating point operations
     total = total + f ( x );
   }
 
   wtime2 = cpu_time ( );
 
+  // NOTE: 4 floating point operations
   total = ( b - a ) * total / ( double ) n;
   error = fabs ( total - exact );
   wtime = wtime2 - wtime1;
@@ -66,12 +69,13 @@ int main ( int argc, char *argv[] )
 
   return 0;
 }
-double f ( double x )
-{
+
+// NOTE: 5 floating point operations
+double f(double x) {
   double pi = 3.141592653589793;
   double value;
 
-  value = 50.0 / ( pi * ( 2500.0 * x * x + 1.0 ) );
+  value = 50.0 / (pi * (2500.0 * x * x + 1.0));
 
   return value;
 }

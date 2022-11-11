@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
   double wtime2;
   double x;
 
-  timestamp();
+  /*timestamp();
   printf("\n");
   printf("QUAD_SECUENCIAL:\n");
   printf("  Integral de f(x)= 50/( pi * ( 2500 * x * x + 1 ) ).\n");
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
   printf("B (fin)= %f\n", b);
   printf("  N = %d\n", n);
   printf("valor exacto = %24.16f\n", exact);
-  printf("\n");
+  printf("\n");*/
 
   wtime1 = cpu_time();
 
@@ -57,17 +57,17 @@ int main(int argc, char *argv[])
   wtime = wtime2 - wtime1;
 
   printf("\n");
-  printf("  Estimate = %24.16f\n", total);
+  //printf("  Estimate = %24.16f\n", total);
   printf("  Error    = %e\n", error);
   printf("  Time     = %f\n", wtime);
   /*
     Terminate.
   */
-  printf("\n");
+  /*printf("\n");
   printf("QUAD_SERIAL:\n");
   printf("  Normal end of execution.\n");
   printf("\n");
-  timestamp();
+  timestamp();*/
 
   return 0;
 }

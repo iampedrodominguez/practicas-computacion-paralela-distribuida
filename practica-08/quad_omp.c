@@ -33,17 +33,18 @@ int main(int argc, char *argv[])
   double wtime2;
   double x;
 
-  timestamp();
+  /*timestamp();
   printf("\n");
   printf("QUAD_OMP:\n");
   printf("  Integral de f(x)= 50/( pi * ( 2500 * x * x + 1 ) ).\n");
   printf("A (inicio) = %f\n", a);
   printf("B (fin)= %f\n", b);
   printf("  N = %d\n", n);
+  printf("  P = %d\n", p);
   printf("valor exacto = %24.16f\n", exact);
-  printf("\n");
+  printf("\n");*/
 
-  wtime1 = cpu_time();
+  wtime1 = omp_get_wtime();
 
   total = 0.0;
 
@@ -54,24 +55,24 @@ int main(int argc, char *argv[])
       total += f(x);
     }
 
-  wtime2 = cpu_time();
+  wtime2 = omp_get_wtime();
 
   total = (b - a) * total / (double)n;
   error = fabs(total - exact);
   wtime = wtime2 - wtime1;
 
   printf("\n");
-  printf("  Estimate = %24.16f\n", total);
+  //printf("  Estimate = %24.16f\n", total);
   printf("  Error    = %e\n", error);
   printf("  Time     = %f\n", wtime);
   /*
     Terminate.
   */
-  printf("\n");
+  /*printf("\n");
   printf("QUAD_OMP:\n");
   printf("  Normal end of execution.\n");
   printf("\n");
-  timestamp();
+  timestamp();*/
 
   return 0;
 }

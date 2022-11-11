@@ -14,16 +14,20 @@ using namespace std;
     el número objetivo. La variable continueComputing cambiará a 0 si ya se encuentra una solución para no seguir
     buscando.
 
-    Por probabilidades, la probabilidad de éxito en cada iteración sería
-        1/100 * 1/100 * 1/100 * 1/100 = 1/100 000 000 = 10^-8
-    Por lo que, en 1000 intentos, la probabilidad de éxito sería
-        (10^-8)^1000 = 10^-8000
+    Por probabilidades, correspondería a una probabilidad de éxito de 1/100^4, de fracaso 1-(1/100^4), y un 
+    máximo de 1000 intentos. Esto consiste en una probabilidad binomial acumulativa P(X >= 1) = 1 - P(X = 0) = 
+    1 - 1000C0 * (1/100^4)^0 * (1 - 1/100^4)^1000 = 1 - 1 * 1 * (99 999 999/100 000 000)^1000 
+    = 9.9999500501661665858295775277568e-6 = 0.0000099999500501661665858295775277568 = 0.00001 = 0.001%.
+    Es decir, es casi imposible que Eduardo invite la cena.
 
-    Para debuggear, se utiliza un máximo valor de 2 (solo dos opciones, 1 y 2) y un máximo de 10 intentos.
-    Para este caso, la probabilidad de éxito: 1/16, y de fracaso: 15/16.
-    C(n, 10) * (1/16)^10 * (1-1/16)^(n-10) 
-    Para n = 200, P = C(200,10)*(1/16)^10 * (15/16)^190
-    
+    Para probar el código, se utiliza un máximo valor de 2 (solo dos opciones, 1 y 2) y un máximo de 10 intentos.
+    Para este caso, la probabilidad de éxito: 1/16, y de fracaso: 15/16. Consiste de una probabilidad binomial 
+    acumulativa P(X >= 1) o 1 - P(X = 0) = 1 - 10C0 * 1/16^(0) * (15/16)^(10-0) = 1 - 0.52446047504872694844380021095276 
+    = 0.47553952495127305155619978904724 = 47.55%, lo que se demuestra en la gráfica.
+
+    Como se observa en la gráfica de 47.55% de probabilidad, los experimentos se ajustan a este valor, lo cual no se
+    observa en la gráfica de 0.001% de probabilidad ya que es muy baja. En conclusión, bajo las condiciones del
+    problema, Eduardo no invitará la cena.
 */
 
 int main(int argc, char **argv)
@@ -108,7 +112,7 @@ int main(int argc, char **argv)
         //Print to file
         FILE *fp;
         fp = fopen(filename.c_str(), "a");
-        fprintf(fp, "%d\n", continueComputing);
+        fprintf(fp, "%d\n", !continueComputing);
     }
 
     MPI_Finalize();

@@ -12,6 +12,8 @@
 
 #include <iomanip>
 using namespace std;
+
+vector<double> times[10];
 void bucketSort(float *arr, int &n, int bucket_size)
 {
     // Crear buckets
@@ -71,6 +73,55 @@ void bucketSortParallel(float *arr, int &n, int bucket_size, int number_of_threa
     
 }
 
+void bucketSortParallelSort(float *arr, int &n, int bucket_size, int number_of_threads)
+{
+    // Crear buckets
+    std::vector<float> bucket[bucket_size];
+    int i, j, bucket_index, index = 0;
+    omp_set_num_threads(number_of_threads);
+
+    
+// asignar elementos a los buckets
+#pragma omp parallel 
+     {   
+        #pragma omp for private(i,bucket_index) 
+        for (i = 0; i < n; ++i)
+        {
+            bucket_index = bucket_size * arr[i] / 1000;
+            #pragma omp critical
+            bucket[bucket_index].push_back(arr[i]);
+        }
+        
+        #pragma omp barrier
+// ordenar buckets
+        int myID;
+         #pragma omp for private(j,myID)
+        for (j = 0; j < bucket_size; ++j){
+            myID=omp_get_thread_num();
+            if(myID%2==0){
+                double t1 = omp_get_wtime();
+                sort_heap(bucket[j].begin(), bucket[j].end());
+                double t2 = omp_get_wtime();
+                printf("Tiempo de ordenamiento: %f\t Rank: %d\n", t2 - t1, myID);
+            }
+            else{
+                double t1 = omp_get_wtime();
+            sort(bucket[j].begin(), bucket[j].end());
+                double t2 = omp_get_wtime();
+                printf("Tiempo de ordenamiento: %f\t Rank: %d\n", t2 - t1, myID);
+            }
+        }
+
+// Concatenar buckets en arr[]
+     }
+
+        for (i = 0; i < bucket_size; i++) {
+    for (j = 0; j < bucket[i].size(); j++)
+      arr[index++] = bucket[i][j];
+  }
+    
+}
+
 int main(int argc, char *argv[])
 {
     int i, n = pow(2, 19);
@@ -97,7 +148,17 @@ int main(int argc, char *argv[])
     }
     
     double * answer = new double[num_of_process]; 
-    for(int i=0;i<num_of_process;i++){
+
+    for(int j=0;j<10;j++){
+           double t1, t2;
+           int s = total_of_process[i];
+           t1 = omp_get_wtime();
+           
+           bucketSortParallelSort(randArray, n, 4,8);
+           t2 = omp_get_wtime();
+           
+    }
+    /*for(int i=0;i<num_of_process;i++){
         double sum=0;
         for(int j=0;j<10;j++){
            double t1, t2;
@@ -114,7 +175,11 @@ int main(int argc, char *argv[])
     }
     for(i =0;i<num_of_process;i++){
         printf("%f8 ", answer[i]);
-    }
+    }*/
+
+    
+
+
     delete[] randArray;
     delete[] total_of_process;
     delete[] answer;

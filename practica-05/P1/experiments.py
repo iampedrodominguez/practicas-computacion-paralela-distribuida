@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-valmin = 10
-valmax = 200
-valstep = 10
+valmin = 200
+valmax = 1000
+valstep = 200
 
-'''experiments = [i for i in range(valmin, valmax + valstep, valstep)]
+experiments = [i for i in range(valmin, valmax + valstep, valstep)]
 probabilities = [0 for i in range(valmin, valmax + valstep, valstep)]
 # read data
 for i, experiment in enumerate(experiments):
@@ -19,9 +19,5 @@ plt.plot(experiments, probabilities)
 plt.title("Success probability in each experiment")
 plt.xlabel("Experiment")
 plt.ylabel("Success probability")
+plt.axhline(y=0.00001, color='r', linestyle='-')
 plt.savefig("experiments.png")
-
-'''
-data = pd.read_csv("Data/exp_10.csv", header=None)
-data = data.to_numpy().flatten()
-print(np.mean(data))

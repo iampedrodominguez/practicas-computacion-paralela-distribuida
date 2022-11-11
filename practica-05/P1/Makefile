@@ -12,7 +12,7 @@ e1_debug:
 	$(CCX) $(CFLAG_DEBUG) $(SRC) -o $@
 
 e1:
-	$(CC) $(SRC) -o $@
+	$(CCX) $(SRC) -o $@
 
 run_e1_debug:
 	mpirun -np $(P) ./e1_debug $(FILE_NAME)

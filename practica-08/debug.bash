@@ -16,6 +16,6 @@ make run_e_omp N=$n P=$p
 echo
 echo "---------------MPI---------------"
 echo
-#make run_e_mpi
+make run_e_mpi N=$n P=$p
 make clean
 

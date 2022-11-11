@@ -1,5 +1,5 @@
-CC=gcc
-CCX=mpicpp
+CC=g++
+CCX=mpic++
 
 SRC_SERIAL=quad_serial.c
 SRC_OMP=quad_omp.c

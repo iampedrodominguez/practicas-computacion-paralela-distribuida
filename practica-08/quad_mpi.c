@@ -3,6 +3,7 @@
 #include <math.h>
 #include <time.h>
 #include <mpi.h>
+#include <string>
 
 using namespace std;
 int main(int argc, char *argv[]);
@@ -16,7 +17,7 @@ int main(int argc, char *argv[])
 
 /******************************************************************************/
 {
-  if (argc < 2)
+  if (argc < 3)
   {
     printf("Too few arguments\n");
     return 1;
@@ -30,6 +31,7 @@ int main(int argc, char *argv[])
   int i;
   int n = 10000000;
   n = atoi(argv[1]);
+  string filename = argv[2];
   double total;
   double wtime;
   double wtime1;
@@ -90,6 +92,12 @@ int main(int argc, char *argv[])
     //printf("  Estimate = %24.16f\n", total);
     printf("  Error    = %e\n", error);
     printf("  Time     = %f\n", wtime);
+
+    // Save data to file
+    FILE *fp;
+    fp = fopen(filename.c_str(), "a");
+    fprintf(fp, "mpi,%d,%d,%f,%f\n", n, number_of_process, wtime, error);
+    fclose(fp);
   }
   /*
     Terminate.

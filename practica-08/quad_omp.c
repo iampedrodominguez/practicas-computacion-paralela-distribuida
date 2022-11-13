@@ -3,6 +3,9 @@
 #include <math.h>
 #include <time.h>
 #include <omp.h>
+#include <string>
+
+using namespace std;
 
 int main(int argc, char *argv[]);
 double f(double x);
@@ -15,7 +18,7 @@ int main(int argc, char *argv[])
 
 /******************************************************************************/
 {
-  if (argc < 3)
+  if (argc < 4)
   {
     printf("Too few arguments\n");
     return 1;
@@ -27,6 +30,7 @@ int main(int argc, char *argv[])
   int i;
   int n = atoi(argv[1]);
   int p = atoi(argv[2]);
+  string filename = argv[3];
   double total;
   double wtime;
   double wtime1;
@@ -65,6 +69,13 @@ int main(int argc, char *argv[])
   //printf("  Estimate = %24.16f\n", total);
   printf("  Error    = %e\n", error);
   printf("  Time     = %f\n", wtime);
+
+  // Save data to file
+  FILE *fp;
+  fp = fopen(filename.c_str(), "a");
+  fprintf(fp, "omp,%d,%d,%f,%f\n", n, p, wtime, error);
+  fclose(fp);
+
   /*
     Terminate.
   */

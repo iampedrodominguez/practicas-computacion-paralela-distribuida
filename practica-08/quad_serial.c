@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
+#include <string>
+
+using namespace std;
 
 int main(int argc, char *argv[]);
 double f(double x);
@@ -14,7 +17,7 @@ int main(int argc, char *argv[])
 
 /******************************************************************************/
 {
-  if(argc < 2)
+  if(argc < 3)
   {
     printf("Too few arguments\n");
     return 1;
@@ -25,6 +28,7 @@ int main(int argc, char *argv[])
   double exact = 0.49936338107645674464;
   int i;
   int n = atoi(argv[1]);
+  string filename = argv[2];
   double total;
   double wtime;
   double wtime1;
@@ -60,6 +64,13 @@ int main(int argc, char *argv[])
   //printf("  Estimate = %24.16f\n", total);
   printf("  Error    = %e\n", error);
   printf("  Time     = %f\n", wtime);
+
+  // Save data to file
+  FILE *fp;
+  fp = fopen(filename.c_str(), "a");
+  fprintf(fp, "ser,%d,%d,%f,%f\n", n, 1, wtime, error);
+  fclose(fp);
+
   /*
     Terminate.
   */

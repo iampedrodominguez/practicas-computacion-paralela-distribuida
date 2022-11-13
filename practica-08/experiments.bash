@@ -1,23 +1,29 @@
 #!/bin/bash
 # bash experiments.bash
-make clean
-#make e1_debug
-make e1
-rm -rf Data
+
 mkdir -p Data
+mkdir -p Plots
+file="Data/data.csv"
+rm -f $file
+touch Data/data.csv
 
-valmin=$[200]
-valmax=$[1000]
-valstep=$[200]
+# n: 2^20 -> 2^35
+# p: 2^1 -> 2^7
 
-# comment below
-for i in $(seq $valmin $valstep $valmax)
+make clean
+make e_serial e_omp e_mpi
+
+for i in $(seq 20 30)
 do
-   filename="Data/exp_$i.csv"
-   for j in $(seq 1 $i)
+   n=$[2**$i]
+   make run_e_serial N=$n FILE_NAME=$file
+
+   for j in $(seq 1 7)
    do
-      #make run_e1_debug FILE_NAME=$filename
-      make run_e1 FILE_NAME=$filename
+      p=$[2**$j]
+      
+      make run_e_omp N=$n P=$p FILE_NAME=$file
+      make run_e_mpi N=$n P=$p FILE_NAME=$file
 
       status=$?
       if [ $status -ne 0 ]; then

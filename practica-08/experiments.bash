@@ -1,6 +1,15 @@
 #!/bin/bash
 # bash experiments.bash
 
+read -n 1 -p "Continue? (Y/N): " op
+echo ""
+
+if [ $op = "N" ] || [ $op = "n" ]; then
+    echo "Saliendo..."
+    exit
+fi
+
+
 mkdir -p Data
 mkdir -p Plots
 file="Data/data.csv"
@@ -21,9 +30,12 @@ do
    for j in $(seq 1 7)
    do
       p=$[2**$j]
-      
-      make run_e_omp N=$n P=$p FILE_NAME=$file
-      make run_e_mpi N=$n P=$p FILE_NAME=$file
+
+      for k in $(seq 1 10)
+      do
+         make run_e_omp N=$n P=$p FILE_NAME=$file
+         make run_e_mpi N=$n P=$p FILE_NAME=$file
+      done
 
       status=$?
       if [ $status -ne 0 ]; then

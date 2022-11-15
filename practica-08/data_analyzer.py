@@ -15,14 +15,14 @@ t_serial = []
 for i in n:
     t_serial.append(data.loc[(data[0] == 'ser') & (data[1] == i)][3].values[0])
 
-# get parallel times
+# get parallel times, average of 10 runs
 t_omp = []
 for i, n_ in enumerate(n):
     t_omp.append([t_serial[i]])
     for p_ in p:
         if p_ == 1:
             continue
-        t_omp[i].append(data.loc[(data[0] == 'omp') & (data[1] == n_) & (data[2] == p_)][3].values[0])
+        t_omp[i].append(data.loc[(data[0] == 'omp') & (data[1] == n_) & (data[2] == p_)][3].mean())
 
 t_mpi = []
 for i, n_ in enumerate(n):
@@ -30,7 +30,7 @@ for i, n_ in enumerate(n):
     for p_ in p:
         if p_ == 1:
             continue
-        t_mpi[i].append(data.loc[(data[0] == 'mpi') & (data[1] == n_) & (data[2] == p_)][3].values[0])
+        t_mpi[i].append(data.loc[(data[0] == 'mpi') & (data[1] == n_) & (data[2] == p_)][3].mean())
 
 colors = plt.cm.tab20(np.linspace(0, 1, len(n)))
 
@@ -143,4 +143,3 @@ plt.gca().yaxis.set_major_formatter(plt.ScalarFormatter())
 plt.grid()
 plt.savefig('Plots/e_mpi.png')
 plt.clf()
-

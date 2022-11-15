@@ -17,11 +17,11 @@ int main(int argc, char *argv[])
 
 /******************************************************************************/
 {
-  /*if (argc < 3)
+  if (argc < 3)
   {
     printf("Too few arguments\n");
     return 1;
-  }*/
+  }
   double a = 0.0;
   double b = 10.0;
   double a_process;
@@ -29,7 +29,9 @@ int main(int argc, char *argv[])
   double error;
   double exact = 0.49936338107645674464;
   int i;
-  int n = 10000000;
+  int n = atoi(argv[1]);
+  int n_original = n;
+  string filename = argv[2];
   double total;
   double wtime;
   double wtime1;
@@ -90,6 +92,12 @@ int main(int argc, char *argv[])
     //printf("  Estimate = %24.16f\n", total);
     printf("  Error    = %e\n", error);
     printf("  Time     = %f\n", wtime);
+
+    // Save data to file
+    FILE *fp;
+    fp = fopen(filename.c_str(), "a");
+    fprintf(fp, "mpi,%d,%d,%f,%f\n", n_original, number_of_process, wtime, error);
+    fclose(fp);
   }
   /*
     Terminate.

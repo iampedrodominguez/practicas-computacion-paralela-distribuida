@@ -17,11 +17,11 @@ int main(int argc, char *argv[])
 
 /******************************************************************************/
 {
-  if (argc < 3)
+  /*if (argc < 3)
   {
     printf("Too few arguments\n");
     return 1;
-  }
+  }*/
   double a = 0.0;
   double b = 10.0;
   double a_process;
@@ -30,8 +30,6 @@ int main(int argc, char *argv[])
   double exact = 0.49936338107645674464;
   int i;
   int n = 10000000;
-  n = atoi(argv[1]);
-  string filename = argv[2];
   double total;
   double wtime;
   double wtime1;
@@ -41,7 +39,6 @@ int main(int argc, char *argv[])
   int id_process;
   int id;                // proceso
   int number_of_process; // total de procesos
-
   MPI_Status s;
   MPI_Init(&argc, &argv);
   MPI_Comm_rank(MPI_COMM_WORLD, &id);
@@ -49,6 +46,7 @@ int main(int argc, char *argv[])
 
   if (id == 0)
   {
+    n/=(number_of_process-1);
     wtime = MPI_Wtime();
     //timestamp();
   }
@@ -59,7 +57,7 @@ int main(int argc, char *argv[])
     for (id_process = 1; id_process <= number_of_process - 1; id_process++)
     {
       // enviando las fronteras a todos los procesos restantes distintos del maestro
-      a_process = ((number_of_process - id_process) * a + (id_process - 1) * b) / (number_of_process - id_process) * 1.0;
+      a_process = ((number_of_process - id_process) * a + (id_process - 1) * b) / (number_of_process - 1) * 1.0;
       MPI_Send(&a_process, 1, MPI_DOUBLE, id_process, 1, MPI_COMM_WORLD);
       b_process = ((number_of_process - id_process - 1) * a + id_process * b) / (number_of_process - 1) * 1.0;
       MPI_Send(&b_process, 1, MPI_DOUBLE, id_process, 2, MPI_COMM_WORLD);
@@ -92,12 +90,6 @@ int main(int argc, char *argv[])
     //printf("  Estimate = %24.16f\n", total);
     printf("  Error    = %e\n", error);
     printf("  Time     = %f\n", wtime);
-
-    // Save data to file
-    FILE *fp;
-    fp = fopen(filename.c_str(), "a");
-    fprintf(fp, "mpi,%d,%d,%f,%f\n", n, number_of_process, wtime, error);
-    fclose(fp);
   }
   /*
     Terminate.

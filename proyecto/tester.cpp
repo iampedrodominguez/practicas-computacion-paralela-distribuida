@@ -9,13 +9,24 @@ void printTime()
     cout << "The local date and time is: " << dt << endl;
 }
 
+void test(string filename);
+void test2(string filename);
+
 int main(int argc, char *argv[])
 {
+    //for(int i=1; i<=6; i++) test("Test/test" + to_string(i) + ".txt");
+    
+    //Read points from Data/wi29.txt
+    test2("Data/points_random.txt");
+
+    return 0;
+}
+
+void test(string filename){
     int n, val;
     Graph graph;
 
     // Read from matrix_random.txt
-    string filename = "Data/matrix_random.txt";
     ifstream file(filename);
     if (file.is_open()) {
         file >> n;
@@ -32,11 +43,20 @@ int main(int argc, char *argv[])
         }
     }else{
         printf("Cannot open file %s\n", filename);
-        return 1;
+        return;
     }
+    
+    TSP tsp(n, graph);
+    //tsp.printGraph();
+    tsp.solve();
+    tsp.printSolution();
+}
 
-    //Read points from Data/wi29.txt
-    /*string filename = "Data/wi29.txt";
+void test2(string filename)
+{
+    int n, val;
+    Graph graph;
+    
     ifstream file(filename);
     int id;
     vector<double> xs, ys;
@@ -51,7 +71,7 @@ int main(int argc, char *argv[])
             file >> id >> xs[i] >> ys[i];
     }else{
         printf("Cannot open file %s\n", filename);
-        return 1;
+        return;
     }
     for(int i=0; i<n; i++){
         for(int j=i+1; j<n; j++){
@@ -61,17 +81,15 @@ int main(int argc, char *argv[])
             graph[i][j] = (int) dist + 0.5;
             graph[j][i] = (int) dist + 0.5;
         }
-    }*/
+    }
     
     TSP tsp(n, graph);
     //tsp.printGraph();
     printTime();
     tsp.solve();
     printTime();
-    tsp.printSolution();
+    //tsp.printSolution();
 
-    //string filename_out = "Data/wi29_calc.txt";
-    //tsp.printSolutionToFile(filename_out);
-
-    return 0;
+    string filename_out = filename.substr(0, filename.find_last_of(".")) + "_calc.txt";
+    tsp.printSolutionToFile(filename_out);
 }

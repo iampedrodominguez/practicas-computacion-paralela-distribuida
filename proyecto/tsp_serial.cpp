@@ -18,12 +18,12 @@ public:
     vector<int> path;
     int cost;
     int curr;
-    Node* parent;
+    int cost_parent;
 
     Node() {
         cost = 0;
         curr = 0;
-        parent = nullptr;
+        cost_parent = 0;
     }
 };
 
@@ -56,7 +56,7 @@ TSP::TSP(int n, Graph graph)
     root->path = {0};
     root->cost = 0;
     root->curr = 0;
-    root->parent = nullptr;
+    root->cost_parent = 0;
 }
 
 void TSP::reduceGraph(Node* node)
@@ -93,7 +93,7 @@ void TSP::reduceGraph(Node* node)
 }
 
 void TSP::reduce(Node* node, int from, int to) {
-    node->cost += node->graph[from][to] + node->parent->cost;
+    node->cost += node->graph[from][to] + node->cost_parent;
     for (int i = 0; i < n; i++) node->graph[from][i] = INT_MAX;
     for (int i = 0; i < n; i++) node->graph[i][to] = INT_MAX;
     node->graph[to][0] = INT_MAX;
@@ -123,23 +123,21 @@ void TSP::solve()
             break;
         }
         for(int to = 0; to < n; to++){
+            if(cur->graph[from][to] == INF)
+                continue;
             //if to is elegible
-            bool elegible = true;
-            vector<int> path = cur->path;
-            for(auto &i : path){
-                if(i == to) {elegible = false;break; }
-            }
-            if(!elegible) continue;
             Node* child = new Node();
             child->graph = cur->graph;
             child->path = cur->path;
             child->path.push_back(to);
             child->curr = to;
-            child->parent = cur;
+            child->cost_parent = cur->cost;
 
             reduce(child, from, to);
             pq.push(child);
         }
+
+        delete cur;
     }
 } 
 

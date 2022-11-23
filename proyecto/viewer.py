@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-test_name = "wi29"
+test_name = "points_random"
 plot_best = False
 plot_calc = True
 

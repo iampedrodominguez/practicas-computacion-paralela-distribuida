@@ -3,3 +3,5 @@ Data
 core*
 /venv
 /practica-05/*/*/*.csv
+
+!proyecto/Data

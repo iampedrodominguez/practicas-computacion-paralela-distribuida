@@ -11,19 +11,16 @@ using namespace std;
 
 #define INF INT_MAX
 
-
 typedef vector<vector<int>> Graph;
+
 class Node {
 public:
     Graph graph;
-    vector<int> path;
     int cost;
-    int curr;
     int cost_parent;
 
     Node() {
         cost = 0;
-        curr = 0;
         cost_parent = 0;
     }
 };
@@ -54,9 +51,7 @@ TSP::TSP(int n, Graph graph)
     
     root = new Node;
     root->graph = graph;
-    root->path = {0};
     root->cost = 0;
-    root->curr = 0;
     root->cost_parent = 0;
 }
 
@@ -81,7 +76,7 @@ void TSP::reduceGraph(Node* node)
     }
     //for each column
 
-    #pragma omp parallel for shared(node) reduction(+:cost)  num_threads(8)
+    //#pragma omp parallel for shared(node) reduction(+:cost)  num_threads(8)
     for(int i=0; i<n; i++)
     {
         int mn = INF;
@@ -104,10 +99,11 @@ void TSP::reduce(Node* node, int from, int to) {
     int i,j;
     //#pragma omp parallel for shared(node,graph) num_threads(8)
     for (i = 0; i < n; i++) 
-    node->graph[from][i] = INT_MAX;
+        node->graph[from][i] = INF;
     //#pragma omp parallel for shared(node,graph) num_threads(8)
-    for (j = 0; j < n; j++) node->graph[j][to] = INT_MAX;
-    node->graph[to][0] = INT_MAX;
+    for (j = 0; j < n; j++) 
+        node->graph[j][to] = INF;
+    node->graph[to][0] = INF;
     reduceGraph(node);
 }
 
@@ -117,39 +113,48 @@ void TSP::solve()
     path = {0};
     reduceGraph(root);
 
-    auto cmp = [](Node* a, Node* b) {
-        return a->cost > b->cost;
+    auto cmp = [](pair<Node*, vector<int>> a, pair<Node*, vector<int>> b) {
+        return a.first->cost > b.first->cost;
     };
-    priority_queue<Node*, vector<Node*>, decltype(cmp)> pq(cmp);
-    pq.push(root);
+
+    priority_queue<pair<Node*, vector<int>>, vector<pair<Node*, vector<int>>>, decltype(cmp)> pq(cmp);
+    pq.push({root, {0}});
 
     while (!pq.empty()) {
-        Node* cur = pq.top();
+        auto cur = pq.top();
+        Node* curnode = cur.first;
+        vector<int> curpath = cur.second;
         pq.pop();
-        int from = cur->curr;
-        if (cur->path.size() == n) {
-            // Find a solution
-            cur->path.push_back(0);
-            path = cur->path;
+        int from = curpath.back();
+        if(curpath.size() == n)
+        {
+            curpath.push_back(0);
+            path = curpath;
             break;
         }
-        //#pragma omp parallel for 
+
+#pragma omp parallel shared(pq, curnode, curpath)  num_threads(5)
+{
+        #pragma omp for 
         for(int to = 0; to < n; to++){
-            if(cur->graph[from][to] == INF)
-                continue;
-            //if to is elegible
-            Node* child = new Node();
-            child->graph = cur->graph;
-            child->path = cur->path;
-            child->path.push_back(to);
-            child->curr = to;
-            child->cost_parent = cur->cost;
+            if(curnode->graph[from][to] != INF)
+            {
+                //if to is elegible
+                Node* child = new Node();
+                child->graph = curnode->graph;
+                vector<int> childpath = curpath;
+                childpath.push_back(to);
+                child->cost_parent = curnode->cost;
 
-            reduce(child, from, to);
-            pq.push(child);
+                reduce(child, from, to);
+#pragma omp critical
+                pq.push({child, childpath});
+            }
         }
+#pragma omp barrier
+}
 
-        delete cur;
+        delete curnode;
     }
 } 
 

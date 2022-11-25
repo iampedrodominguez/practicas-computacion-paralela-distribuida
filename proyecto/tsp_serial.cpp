@@ -12,17 +12,15 @@ using namespace std;
 #define INF INT_MAX
 
 typedef vector<vector<int>> Graph;
+
 class Node {
 public:
     Graph graph;
-    vector<int> path;
     int cost;
-    int curr;
     int cost_parent;
 
     Node() {
         cost = 0;
-        curr = 0;
         cost_parent = 0;
     }
 };
@@ -53,9 +51,7 @@ TSP::TSP(int n, Graph graph)
     
     root = new Node;
     root->graph = graph;
-    root->path = {0};
     root->cost = 0;
-    root->curr = 0;
     root->cost_parent = 0;
 }
 
@@ -94,9 +90,9 @@ void TSP::reduceGraph(Node* node)
 
 void TSP::reduce(Node* node, int from, int to) {
     node->cost += node->graph[from][to] + node->cost_parent;
-    for (int i = 0; i < n; i++) node->graph[from][i] = INT_MAX;
-    for (int i = 0; i < n; i++) node->graph[i][to] = INT_MAX;
-    node->graph[to][0] = INT_MAX;
+    for (int i = 0; i < n; i++) node->graph[from][i] = INF;
+    for (int i = 0; i < n; i++) node->graph[i][to] = INF;
+    node->graph[to][0] = INF;
     reduceGraph(node);
 }
 
@@ -106,38 +102,41 @@ void TSP::solve()
     path = {0};
     reduceGraph(root);
 
-    auto cmp = [](Node* a, Node* b) {
-        return a->cost > b->cost;
+    auto cmp = [](pair<Node*, vector<int>> a, pair<Node*, vector<int>> b) {
+        return a.first->cost > b.first->cost;
     };
-    priority_queue<Node*, vector<Node*>, decltype(cmp)> pq(cmp);
-    pq.push(root);
+
+    priority_queue<pair<Node*, vector<int>>, vector<pair<Node*, vector<int>>>, decltype(cmp)> pq(cmp);
+    pq.push({root, {0}});
 
     while (!pq.empty()) {
-        Node* cur = pq.top();
+        auto cur = pq.top();
+        Node* curnode = cur.first;
+        vector<int> curpath = cur.second;
         pq.pop();
-        int from = cur->curr;
-        if (cur->path.size() == n) {
-            // Find a solution
-            cur->path.push_back(0);
-            path = cur->path;
+        int from = curpath.back();
+        if(curpath.size() == n)
+        {
+            curpath.push_back(0);
+            path = curpath;
             break;
         }
+
         for(int to = 0; to < n; to++){
-            if(cur->graph[from][to] == INF)
+            if(curnode->graph[from][to] == INF)
                 continue;
             //if to is elegible
             Node* child = new Node();
-            child->graph = cur->graph;
-            child->path = cur->path;
-            child->path.push_back(to);
-            child->curr = to;
-            child->cost_parent = cur->cost;
+            child->graph = curnode->graph;
+            vector<int> childpath = curpath;
+            childpath.push_back(to);
+            child->cost_parent = curnode->cost;
 
             reduce(child, from, to);
-            pq.push(child);
+            pq.push({child, childpath});
         }
 
-        delete cur;
+        delete curnode;
     }
 } 
 

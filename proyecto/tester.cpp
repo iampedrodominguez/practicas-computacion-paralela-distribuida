@@ -1,4 +1,6 @@
-#include "tsp_serial.cpp"
+//#include "tsp_serial.cpp"
+#include "tsp_parallel.cpp"
+#include <omp.h>
 
 using namespace std;
 
@@ -16,7 +18,6 @@ int main(int argc, char *argv[])
 {
     //for(int i=1; i<=6; i++) test("Test/test" + to_string(i) + ".txt");
     
-    //Read points from Data/wi29.txt
     test2("Data/points_random.txt");
 
     return 0;
@@ -48,8 +49,11 @@ void test(string filename){
     
     TSP tsp(n, graph);
     //tsp.printGraph();
+    auto t1 = omp_get_wtime();
     tsp.solve();
+    auto t2 = omp_get_wtime();
     tsp.printSolution();
+    printf("Time in sec: %f\n", t2-t1);
 }
 
 void test2(string filename)
@@ -85,9 +89,10 @@ void test2(string filename)
     
     TSP tsp(n, graph);
     //tsp.printGraph();
-    printTime();
+    auto t1 = omp_get_wtime();
     tsp.solve();
-    printTime();
+    auto t2 = omp_get_wtime();
+    printf("Time in sec: %f\n", t2 - t1);
     //tsp.printSolution();
 
     string filename_out = filename.substr(0, filename.find_last_of(".")) + "_calc.txt";

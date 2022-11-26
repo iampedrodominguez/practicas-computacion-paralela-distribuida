@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <math.h>
 #include <fstream>
-
+#include <omp.h>
 using namespace std;
 
 #define INF INT_MAX
@@ -18,6 +18,7 @@ public:
     Graph graph;
     int cost;
     int cost_parent;
+    vector<int> activeRows;
 
     Node() {
         cost = 0;
@@ -32,13 +33,13 @@ private:
     Graph graph;
     Node* root;
     vector<int> path;
-    int score;
+    int p;
 
     void reduceGraph(Node* node);
     void reduce(Node* node, int from, int to);
 
 public:
-    TSP(int n, Graph graph);
+    TSP(int n, Graph graph, int p);
     void printGraph();
     void solve();
     bool printSolution();
@@ -46,15 +47,17 @@ public:
     int getScore();
 };
 
-TSP::TSP(int n, Graph graph)
+TSP::TSP(int n, Graph graph, int p)
 {
     this->n = n;
     this->graph = graph;
+    this->p = p;
     
     root = new Node;
     root->graph = graph;
     root->cost = 0;
     root->cost_parent = 0;
+    root->activeRows.resize(n, 1);
 }
 
 void TSP::reduceGraph(Node* node)
@@ -63,15 +66,20 @@ void TSP::reduceGraph(Node* node)
     //for each row
     for(int i=0; i<n; i++)
     {
+        if(node->activeRows[i] == 0) continue;
         int mn = *min_element(node->graph[i].begin(), node->graph[i].end());
         if(mn != INF && mn > 0)
-        {
+        {   
             cost += mn;
-            for(int j=0; j<n; j++)
-                if(node->graph[i][j] != INF)
+            for(int j=0; j<n; j++){
+                if(node->graph[i][j] != INF){
                     node->graph[i][j] -= mn;
+                }
+            }
         }
+        node->activeRows[i] = 0;
     }
+
     //for each column
     for(int i=0; i<n; i++)
     {
@@ -80,7 +88,7 @@ void TSP::reduceGraph(Node* node)
             if(node->graph[j][i] < mn)
                 mn = node->graph[j][i];
         if(mn != INF && mn > 0)
-        {
+        {    
             cost += mn;
             for(int j=0; j<n; j++)
                 if(node->graph[j][i] != INF)
@@ -95,6 +103,7 @@ void TSP::reduce(Node* node, int from, int to) {
     for (int i = 0; i < n; i++) node->graph[from][i] = INF;
     for (int i = 0; i < n; i++) node->graph[i][to] = INF;
     node->graph[to][0] = INF;
+    node->activeRows[from] = 0;
     reduceGraph(node);
 }
 
@@ -124,19 +133,27 @@ void TSP::solve()
             break;
         }
 
+#pragma omp parallel shared(pq, curnode, curpath)  num_threads(p)
+{
+        #pragma omp for 
         for(int to = 0; to < n; to++){
-            if(curnode->graph[from][to] == INF)
-                continue;
-            //if to is elegible
-            Node* child = new Node();
-            child->graph = curnode->graph;
-            vector<int> childpath = curpath;
-            childpath.push_back(to);
-            child->cost_parent = curnode->cost;
+            if(curnode->graph[from][to] != INF)
+            {
+                //if to is elegible
+                Node* child = new Node();
+                child->graph = curnode->graph;
+                vector<int> childpath = curpath;
+                childpath.push_back(to);
+                child->cost_parent = curnode->cost;
+                child->activeRows = curnode->activeRows;
 
-            reduce(child, from, to);
-            pq.push({child, childpath});
+                reduce(child, from, to);
+#pragma omp critical
+                pq.push({child, childpath});
+            }
         }
+#pragma omp barrier
+}
 
         delete curnode;
     }

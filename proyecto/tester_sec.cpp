@@ -1,31 +1,29 @@
-#include "tsp_parallel.cpp"
+#include "tsp_serial.cpp"
 #include <omp.h>
 
 using namespace std;
 
-void test(string filename, int p);
-pair<int, pair<double, int>> test2(string filename, int p);
-void test3(string filename, int p);
+void test(string filename);
+pair<int, pair<double, int>>  test2(string filename);
+void test3(string filename);
 
 int main(int argc, char *argv[])
 {
 #ifdef _DEBUG
-    for(int i=1; i<=6; i++) test("Test/test" + to_string(i) + ".txt", 8);
+    for(int i=1; i<=6; i++) test("Test/test" + to_string(i) + ".txt");
 #else
 
 #ifdef _DEBUG_BIG
-    test3("Data/points_random.txt", 8);
+    test3("Data/points_random.txt");
 #else
-    if(argc < 4)
+    if(argc < 3)
     {
-        printf("Number of processors, In file and Out file are needed\n");
+        printf("In file and Out file are needed\n");
         return 1;
     }
-    int p = atoi(argv[1]);
     string inFile = argv[1];
     string outFile = argv[2];
-
-    auto result = test2(inFile, p);
+    auto result = test2(inFile);
     int n = result.first;
     double time = result.second.first;
     int score = result.second.second;
@@ -43,7 +41,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-void test(string filename, int p){
+void test(string filename){
     int n, val;
     Graph graph;
 
@@ -67,7 +65,7 @@ void test(string filename, int p){
         return;
     }
     
-    TSP tsp(n, graph, p);
+    TSP tsp(n, graph);
     //tsp.printGraph();
     auto t1 = omp_get_wtime();
     tsp.solve();
@@ -76,7 +74,7 @@ void test(string filename, int p){
     printf("Time in sec: %f\n", t2-t1);
 }
 
-pair<int, pair<double, int>> test2(string filename, int p)
+pair<int, pair<double, int>> test2(string filename)
 {
     int n, val;
     Graph graph;
@@ -107,20 +105,16 @@ pair<int, pair<double, int>> test2(string filename, int p)
         }
     }
     
-    TSP tsp(n, graph, p);
-    //tsp.printGraph();
+    TSP tsp(n, graph);
     auto t1 = omp_get_wtime();
     tsp.solve();
     auto t2 = omp_get_wtime();
     printf("Time in sec: %f\n", t2 - t1);
-    //tsp.printSolution();
 
-    string filename_out = filename.substr(0, filename.find_last_of(".")) + "_calc.txt";
-    tsp.printSolutionToFile(filename_out);
     return {n, {t2 - t1, tsp.getScore()}};
 }
 
-void test3(string filename, int p)
+void test3(string filename)
 {
     int n, val;
     Graph graph;
@@ -151,7 +145,7 @@ void test3(string filename, int p)
         }
     }
     
-    TSP tsp(n, graph, p);
+    TSP tsp(n, graph);
     auto t1 = omp_get_wtime();
     tsp.solve();
     auto t2 = omp_get_wtime();
@@ -159,5 +153,4 @@ void test3(string filename, int p)
 
     string filename_out = filename.substr(0, filename.find_last_of(".")) + "_calc.txt";
     tsp.printSolutionToFile(filename_out);
-    return;
 }

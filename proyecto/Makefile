@@ -12,36 +12,40 @@ MKDIR := mkdir -p
 
 TARGET := $(notdir $(CURDIR))
 FILE = data.csv
-N = 30
+N = 25
 P = 1
 T = 2
 
 %.data: %.cpp
+	@echo -e "SERIAL::Compiling $@ DATA"
 	@$(CXX) $(CCFLAGS) $(DATAFLAGS) -o $@ $<
 
 %.test: %.cpp
-	@echo -e "Compiling $@"
+	@echo -e "SERIAL::Compiling $@ TEST"
 	@$(CXX) $(CCFLAGS) $(TESTFLAGS) -o $@ $<
 
-%.omp.data: %.cpp
-	@$(CXX) $(LDFLAGS) $(CCFLAGS) $(DATAFLAGS) -o $(TARGET) $<
+omp.%.data: %.cpp
+	@echo -e "OMP::Compiling $@ DATA"
+	@$(CXX) $(LDFLAGS) $(CCFLAGS) $(DATAFLAGS) -o $@ $<
 
-%.omp.test: %.cpp
-	@$(CXX) $(LDFLAGS) $(CCFLAGS) $(TESTFLAGS) -o $(TARGET) $<
+omp.%.test: %.cpp
+	@echo -e "OMP::Compiling $@ TEST"
+	@$(CXX) $(LDFLAGS) $(CCFLAGS) $(TESTFLAGS) -o $@ $<
 
-%.mpi.data: %.cpp
-	@$(CC) $(LDFLAGS) $(CCFLAGS) $(DATAFLAGS) -o $(TARGET) $<
+mpi.%.data: %.cpp
+	@$(CC) $(LDFLAGS) $(CCFLAGS) $(DATAFLAGS) -o $@ $<
 
-%.mpi.test: %.cpp
-	@$(CC) $(LDFLAGS) $(CCFLAGS) $(TESTFLAGS) -o $(TARGET) $<
+mpi.%.test: %.cpp
+	@$(CC) $(LDFLAGS) $(CCFLAGS) $(TESTFLAGS) -o $@ $<
 
-mpi.run:
+mpi.%.run: %
 	@$(MKDIR) $(DATA_DIR)
 	@mpirun -np $(P) ./$(TARGET) $(DATA_DIR)/$(FILE) $(N) $(T)
 
-omp.run:
+omp.%.run: %
 	@$(MKDIR) $(DATA_DIR)
-	@./$(TARGET) $(DATA_DIR)/$(FILE) $(N) $(T)
+	@echo -e "OMP::Running $<"
+	@./$< $(N)
 
 %.run: %
 	@$(MKDIR) $(DATA_DIR)

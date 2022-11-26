@@ -8,13 +8,14 @@
 #SBATCH --error=./output/CPD_PROJECT.err
 
 module purge
+module load cmake/3.22.2
 module load gcc/10.1.0
 
 # Generate points
-make points_generator.test
-make points_generator.test.run
+make omp.points_generator.test
+make omp.points_generator.test.run
 
 # TSP problem
 
-make tester.test
-make tester.test.run
+make omp.tester.test
+make omp.tester.test.run

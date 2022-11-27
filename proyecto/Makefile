@@ -10,50 +10,72 @@ DATAFLAGS := -D_DATA
 DATA_DIR := ./Data
 MKDIR := mkdir -p
 
+# NOTE: Variables for experiments
+
 TARGET := $(notdir $(CURDIR))
 FILE = data.csv
-N = 25
+PFILE= points_random.txt
+N = 28
 P = 1
 T = 2
 
-%.data: %.cpp
-	@echo -e "SERIAL::Compiling $@ DATA"
-	@$(CXX) $(CCFLAGS) $(DATAFLAGS) -o $@ $<
+# NOTE: Global variables
 
-%.test: %.cpp
-	@echo -e "SERIAL::Compiling $@ TEST"
-	@$(CXX) $(CCFLAGS) $(TESTFLAGS) -o $@ $<
+CBLUE 		:= 
+CBOLD 		:= 
+CEND 		:= 
+CGREEN 		:= 
+CRED 		:= 
+operation 	= 'Waiting...'
 
-omp.%.data: %.cpp
-	@echo -e "OMP::Compiling $@ DATA"
+build.%: %.cpp
+	$(eval operation := Compiling)
+	@echo -e "$(CBOLD)SERIAL$(CBLUE)::$(CEND)$(operation) $< $(CGREEN)$(CBOLD)==>$(CEND) $@"
+	@echo -e "$(CBOLD)SERIAL$(CBLUE)::$(CEND)FLAG$(CBLUE)::$(CEND)$(CBOLD)DATA$(CEND)"
 	@$(CXX) $(LDFLAGS) $(CCFLAGS) $(DATAFLAGS) -o $@ $<
 
-omp.%.test: %.cpp
-	@echo -e "OMP::Compiling $@ TEST"
-	@$(CXX) $(LDFLAGS) $(CCFLAGS) $(TESTFLAGS) -o $@ $<
+build.%.omp: %.cpp
+	$(eval operation := Compiling)
+	@echo -e "$(CBOLD)OMP$(CBLUE)::$(CEND)$(operation) $< $(CGREEN)$(CBOLD)==>$(CEND) $@"
+	@echo -e "$(CBOLD)OMP$(CBLUE)::$(CEND)FLAG$(CBLUE)::$(CEND)$(CBOLD)DATA$(CEND)"
+	@$(CXX) $(LDFLAGS) $(CCFLAGS) $(DATAFLAGS) -o $@ $<
 
-mpi.%.data: %.cpp
+build.%.mpi: %.cpp
+	$(eval operation := Compiling)
+	@echo -e "$(CBOLD)MPI$(CBLUE)::$(CEND)$(operation) $< $(CGREEN)$(CBOLD)==>$(CEND) $@"
+	@echo -e "$(CBOLD)MPI$(CBLUE)::$(CEND)FLAG$(CBLUE)::$(CEND)$(CBOLD)DATA$(CEND)"
 	@$(CC) $(LDFLAGS) $(CCFLAGS) $(DATAFLAGS) -o $@ $<
 
-mpi.%.test: %.cpp
-	@$(CC) $(LDFLAGS) $(CCFLAGS) $(TESTFLAGS) -o $@ $<
+run.%: build.%
+	$(eval operation := Running)
+	@echo -e "$(CBOLD)SERIAL$(CBLUE)::$(CEND)$(operation) $<"
+	@$(MKDIR) $(DATA_DIR)
+	@./$< $(DATA_DIR)/$(PFILE) $(DATA_DIR)/$(TFILE)
 
-mpi.%.run: %
+run.%.omp: build.%.omp
+	$(eval operation := Running)
+	@echo -e "$(CBOLD)OMP$(CBLUE)::$(CEND)$(operation) $<"
+	@$(MKDIR) $(DATA_DIR)
+	@./$< $(T) $(DATA_DIR)/$(PFILE) $(DATA_DIR)/$(TFILE)
+
+run.%.mpi: build.%.mpi
+	$(eval operation := Running)
+	@echo -e "$(CBOLD)MPI$(CBLUE)::$(CEND)$(operation) $<"
 	@$(MKDIR) $(DATA_DIR)
 	@mpirun -np $(P) ./$(TARGET) $(DATA_DIR)/$(FILE) $(N) $(T)
 
-omp.%.run: %
-	@$(MKDIR) $(DATA_DIR)
-	@echo -e "OMP::Running $<"
-	@./$< $(N)
 
-%.run: %
+run.%.data: %
+	$(eval operation := Running)
+	@echo -e "$(CBOLD)SERIAL$(CBLUE)::$(CEND)$(operation) $<"
 	@$(MKDIR) $(DATA_DIR)
-	@echo -e "Running $<"
 	@./$< $(N)
 
 clean:
-	@rm -rf $(TARGET)
+	$(eval operation := Cleanning...)
+	@echo -e "$(CBOLD)$(CBLUE)::$(CEND)$(operation)"
+	@rm -rf *.data *.test $(TARGET)
 
-clean_data:
-	
+clean.data:
+	$(eval operation := Cleanning data...)
+	@echo -e "$(CBOLD)$(CBLUE)::$(CEND)$(operation)"

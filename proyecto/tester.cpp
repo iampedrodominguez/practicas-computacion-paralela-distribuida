@@ -22,8 +22,8 @@ int main(int argc, char *argv[])
         return 1;
     }
     int p = atoi(argv[1]);
-    string inFile = argv[1];
-    string outFile = argv[2];
+    string inFile = argv[2];
+    string outFile = argv[3];
 
     auto result = test2(inFile, p);
     int n = result.first;
@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     //Write to file
     ofstream file(outFile, ios::app);
     if (file.is_open()) {
-        file << n << ",1," << time << "," << score << "\n";
+        file << "omp," << n << "," << p << "," << time << "," << score << "\n";
     }else{
         printf("Cannot open file %s\n", outFile);
         return 1;

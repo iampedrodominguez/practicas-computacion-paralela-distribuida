@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     random_device rd;
     mt19937 gen(rd());
     uniform_int_distribution<> dis(xy_min, xy_max);
-    ofstream file("Data/points_random.txt");
+    ofstream file("Data/points_random_.txt");
     if (file.is_open()) {
         file << n << "\n";
         for (int i = 0; i < n; i++) {

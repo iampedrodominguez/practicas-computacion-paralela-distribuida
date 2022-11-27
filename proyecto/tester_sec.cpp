@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     //Write to file
     ofstream file(outFile, ios::app);
     if (file.is_open()) {
-        file << n << ",1," << time << "," << score << "\n";
+        file << "sec," << n << ",1," << time << "," << score << "\n";
     }else{
         printf("Cannot open file %s\n", outFile);
         return 1;

@@ -84,6 +84,8 @@
         "sstream": "cpp",
         "cfenv": "cpp",
         "cinttypes": "cpp",
-        "typeindex": "cpp"
+        "typeindex": "cpp",
+        "algorithm": "cpp",
+        "__locale": "cpp"
     }
 }

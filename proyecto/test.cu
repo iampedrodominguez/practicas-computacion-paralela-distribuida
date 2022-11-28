@@ -9,7 +9,7 @@ typedef vector<vector<int>> Graph;
 
 __device__ int cost;
 
-__global__ void test(int graph[], int n)
+__global__ void reduceGraphRows(int graph[], int n)
 
 {
     //Get thread ID.x
@@ -69,7 +69,8 @@ int main(){
     dim3 BLOCKS(n, n);
 
     //Call reduce functions in GPU
-    test<<<1, BLOCKS>>>(GPUgraph, n);
+    reduceGraphRows<<<1, BLOCKS>>>(GPUgraph, n);
+    //reduceGraphColumns<1, BLOCKS>>(GPUgraph, n);
 
     //cout << GPUgraph[0];
     //Return matrix

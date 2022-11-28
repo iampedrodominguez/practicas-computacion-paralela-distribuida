@@ -64,8 +64,7 @@ run.%.mpi: build.%.mpi
 	@$(MKDIR) $(DATA_DIR)
 	@mpirun -np $(P) ./$(TARGET) $(DATA_DIR)/$(FILE) $(N) $(T)
 
-
-run.%.data: %
+run.%.data: build.%
 	$(eval operation := Running)
 	@echo -e "$(CBOLD)SERIAL$(CBLUE)::$(CEND)$(operation) $<"
 	@$(MKDIR) $(DATA_DIR)

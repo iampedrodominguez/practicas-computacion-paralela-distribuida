@@ -13,18 +13,18 @@ module purge
 module load cmake/3.22.2
 module load gcc/10.1.0
 
-points_file="points_random_19.txt"
-times_file="experiments_times.csv"
+points_file="points_random_28.txt"
+times_file="experiments_times_01.csv"
 
 make clean
 
 # Experiment A: Sequential
 
-make run.tester_sec PFILE=$points_file TFILE=$times_file
+# make run.tester_sec PFILE=$points_file TFILE=$times_file
 
 # Experiment B: Parallel OMP
 
-for t in {2..16}
+for t in {2..6}
 do
     echo "Running experiment B with $t threads"
     for _ in {1..3}

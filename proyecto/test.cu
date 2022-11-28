@@ -39,33 +39,29 @@ __global__ void reduceGraphRows(int graph[], int n, int cost[])
     }
 }
 
-/*
-__global__ void reduceGraphColumns(int graph[], int n)
 
+__global__ void reduceGraphColumns(int graph[], int n, int cost[])
 {
-    //for each column
-
     //Get thread ID.x
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
 
-    for(int i=0; i<n; i++)
+    if (idx < n)
     {
         int mn = INF;
         for (int j=0; j<n; j++)
-            if (graph[j][i] < mn)
-                mn = graph[j][i];
+            if (graph[j * n + idx] < mn)
+                mn = graph[j * n + idx];
 
         if(mn != INF && mn > 0)
         {    
-            cost += mn;
+            cost[idx] += mn;
             for(int j=0; j<n; j++)
 
-                if(graph[j][i] != INF)
-                    graph[j][i] -= mn;
+                if(graph[j * n + idx] != INF)
+                    graph[j * n + idx] -= mn;
         }
     }
-    cost += cost;
-}*/
+}
 
 int main(){
 
@@ -102,7 +98,7 @@ int main(){
 
     //Call reduce functions in GPU
     reduceGraphRows<<<1, BLOCKS>>>(GPUgraph, n, GPUcost);
-    //reduceGraphColumns<1, BLOCKS>>(GPUgraph, n);
+    reduceGraphColumns<<<1, BLOCKS>>>(GPUgraph, n, GPUcost);
 
     //Return matrix
     cudaMemcpy(CPUgraph, GPUgraph, bytes_m, cudaMemcpyDeviceToHost);

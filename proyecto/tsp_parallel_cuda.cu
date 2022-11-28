@@ -7,6 +7,7 @@
 #include <math.h>
 #include <fstream>
 #include <omp.h>
+
 using namespace std;
 
 #define INF INT_MAX
@@ -34,9 +35,7 @@ private:
     Node* root;
     vector<int> path;
     int p;
-
-    void reduceGraphRows(Graph graph);
-    void reduceGraphColumns(Node* node);
+    void reduceGraph(Node* node);
     void reduce(Node* node, int from, int to);
 
 public:
@@ -60,59 +59,121 @@ TSP::TSP(int n, Graph graph, int p)
     root->cost_parent = 0;
 };
 
-//Make global/shared variable
-__device__ int cost;
 
-__global__ void TSP::reduceGraphRows(Graph graph)
+__global__ void reduceGraphColumns(int graph[], int n, int cost[])
+{
+    //Get thread ID.x
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (idx < n)
+    {
+        int mn = INF;
+        for (int j=0; j<n; j++)
+            if (graph[j * n + idx] < mn)
+                mn = graph[j * n + idx];
+
+        if(mn != INF && mn > 0)
+        {    
+            cost[idx] += mn;
+            for(int j=0; j<n; j++)
+
+                if(graph[j * n + idx] != INF)
+                    graph[j * n + idx] -= mn;
+        }
+    }
+}
+
+__global__ void reduceGraphRows(int graph[], int n, int cost[])
 
 {
-
     //Get thread ID.x
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
     //int idy = threadIdx.y + blockIdx.y * blockDim.y;
 
+    
     if (idx < n) {
         int mn = INF;
 
         //Find the smallest row value
         for (int j = 0; j < n; j++)
-            if (graph[idx][j] < mn)
-                mn = graph[idx][j];
+            if (graph[idx * n + j] < mn)
+                mn = graph[idx * n + j];
         
         //If small value is valid
         if (mn != INF && mn > 0)
         {   
-            cost += mn;
+            
+            cost[idx] = mn;
 
             //Reduce the cost for each row element
             for(int j=0; j<n; j++){
-                if(graph[idx][j] != INF){
-                    graph[idx][j] -= mn;
+                if(graph[idx * n + j] != INF){
+                    graph[idx * n + j] -= mn;
                 }
             }
         }
     }
 }
 
-__global__ void TSP::reduceGraphColumns(Node* node)
-
+void TSP::reduceGraph(Node* node)
 {
-    //for each column
-    for(int i=0; i<n; i++)
-    {
-        int mn = INF;
-        for(int j=0; j<n; j++)
-            if(node->graph[j][i] < mn)
-                mn = node->graph[j][i];
-        if(mn != INF && mn > 0)
-        {    
-            cost += mn;
-            for(int j=0; j<n; j++)
-                if(node->graph[j][i] != INF)
-                    node->graph[j][i] -= mn;
-        }
+    int* CPUcost = new int[n];
+    int* GPUcost = new int[n];
+
+    //Allocatig GPU memory for matrix
+   
+    int* CPUgraph = new int[n * n];
+    int* GPUgraph = new int[n * n];
+
+    for(int i = 0 ; i < n; i++) {
+        CPUcost[i] = 0;
+        for (int j = 0; j < n; j++)
+            CPUgraph[i * n + j] = node->graph[i][j];
     }
-    node->cost += cost;
+
+    size_t bytes_m = n * n * sizeof(int);
+    size_t bytes_c = n * sizeof(int);
+
+    //Allocating GPU memory for global variable COST and GPUGRAPH
+    cudaMalloc((void**)&GPUgraph, bytes_m);
+    cudaMalloc((void**)&GPUcost, bytes_c);
+
+    // Copy data to GPU
+    cudaMemcpy(GPUgraph, CPUgraph, bytes_m, cudaMemcpyHostToDevice); 
+    cudaMemcpy(GPUcost, CPUcost, bytes_c, cudaMemcpyHostToDevice); 
+
+    // Declare dimensions of GPU grid
+    dim3 BLOCKS(n, n);
+
+    // Call reduce functions in GPU
+    reduceGraphRows<<<1, BLOCKS>>>(GPUgraph, n, GPUcost);
+    reduceGraphColumns<<<1, BLOCKS>>>(GPUgraph, n, GPUcost);
+
+    // Copy data from GPU
+    cudaMemcpy(CPUgraph, GPUgraph, bytes_m, cudaMemcpyDeviceToHost);
+    cudaMemcpy(CPUcost, GPUcost, bytes_c, cudaMemcpyDeviceToHost);
+
+    int globalCost = 0;
+
+    for (int i = 0 ; i < n; i++) {
+        globalCost += CPUcost[i];
+        for (int j = 0; j < n; j++)
+            cout << CPUgraph[i * n + j] << " ";
+        cout << endl;
+    }
+
+    for(int i = 0 ; i < n; i++) {
+        for (int j = 0; j < n; j++)
+            node->graph[i][j] = CPUgraph[i * n + j];
+    }
+    
+    node->cost += globalCost;
+
+    // Free memory from GPU and CPU
+    free(CPUgraph);
+    free(CPUcost);
+    cudaFree(GPUgraph);
+    cudaFree(GPUcost);
 }
 
 void TSP::reduce(Node* node, int from, int to) {
@@ -122,33 +183,7 @@ void TSP::reduce(Node* node, int from, int to) {
         node->graph[i][to] = INF;
     }
     node->graph[to][0] = INF;
-    
-    int* cost;
-
-    //Allocatig GPU memory for each matrix
-    Graph* GPUgraph;
-    size_t bytes_i = n * n * sizeof(int);
-    cudaMalloc((void**)GPUgraph, bytes_i);
-
-    //Allocating GPU memory for global variable cost
-    cudaMalloc(&cost, sizeof(int));
-
-    //Pensar como pasarlo a GPU
-    cudaMemcpy(GPUgraph, &(node->graph), bytes_i, cudaMemcpyHostToDevice); 
-
-    //Declare dimensions of GPU grid
-    dim3 BLOCKS(n, n);
-
-    //Call reduce functions in GPU
-    reduceGraphRows<<<1, BLOCKS>>>(*GPUgraph);
-    reduceGraphColumns<<<1, BLOCKS>>>(*GPUgraph);
-
-    //Return matrix
-    cudaMemcpy(&(node->graph), GPUgraph, bytes_i, cudaMemcpyDeviceToHost);
-
-    //Free memory from GPU
-    cudaFree(GPUgraph);
-    cudaFree(cost);
+    reduceGraph(node);
 }
 
 
